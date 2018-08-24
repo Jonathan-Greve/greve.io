@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "hoek": "^5.0.4",
+    "lodash": "^4.17.10",
     "react": "^16.4.2",
     "react-bootstrap": "^0.31.5",
     "react-dom": "^16.4.2",
@@ -14,7 +16,9 @@
     "react-scripts": "1.0.17",
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "sshpk": "^1.14.2",
+    "url-parse": "^1.4.3"
   },
   "scripts": {
     "start": "rimraf ./build && react-scripts start",
