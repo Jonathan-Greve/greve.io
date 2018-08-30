@@ -1,9 +1,36 @@
 ﻿body {
 }
 
-.CropImageWindow > img {
-    max-width: 400px;
-    margin: 25px;
-    border: 1px solid black;
-    /*margin-left: calc(50% - 25px);*/
+.CropImageWindow {
+    position: relative;
 }
+
+    .CropImageWindow:before {
+        background: rgba(255, 255, 255, 0.4);
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        bottom: 0;
+        left: 240px;
+        top: 150px;
+        border: 1px solid black;
+    }
+    .CropImageWindow:before {
+        content: "";
+        position: absolute;
+        background-image: 
+            radial-gradient(circle at center, red 5px, transparent 6px),
+            radial-gradient(circle at center, red 5px, transparent 6px),
+            radial-gradient(circle at center, red 5px, transparent 6px),
+            radial-gradient(circle at center, red 5px, transparent 6px);
+        background-size: 20px 20px;
+        background-position: top right, top left, bottom right, bottom left;
+        background-repeat: no-repeat;
+    }
+
+    .CropImageWindow > img {
+        /*max-width: 400px;*/
+        /*margin-top: 25px;*/
+        border: 1px solid black;
+        /*margin-left: calc(50% - 25px);*/
+    }

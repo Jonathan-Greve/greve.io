@@ -2,8 +2,7 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import ImageUploader from 'react-images-upload';
-import { Grid, Col, Row } from 'react-bootstrap'
+import { Col, Row, Image, Jumbotron } from 'react-bootstrap'
 import './ImageSheet.css'
 
 class ImageSheet extends Component {
@@ -20,7 +19,7 @@ class ImageSheet extends Component {
     handleImageUpload(image) {
         console.log(image);
         this.setState({
-            image, 
+            image,
         })
     }
 
@@ -38,23 +37,62 @@ class ImageSheet extends Component {
 
     render() {
         return (
-            <Grid>
-                <Row className="show-grid">
-                    <Col lg={3}>
-                        <h1>Create image sheet</h1>
-                        <p>Upload an image and choose the crop area, image format, and sheet format.</p>
-                        <ImageUpload onImageUpload={this.handleImageUpload}/>
-                    </Col>
-                    <Col lg={6}>
-                        <CropImageWindow image={this.state.image} />
-                    </Col>
-                </Row>
-            </Grid>
+            <Row>
+                <Jumbotron>
+                    <h1>Create image sheet</h1>
+                    <p>Upload an image and choose the crop area, image format, and sheet format.</p>
+                </Jumbotron>
+                <Col lg={5}>
+                    <ImageUpload onImageUpload={this.handleImageUpload} />
+                    <ImageFormat />
+                    <SheetFormat />
+                </Col>
+                <Col lg={7}>
+                    <CropImageWindow image={this.state.image} />
+                </Col>
+            </Row>
+        );
+    }
+}
+
+class ImageFormat extends Component {
+    render() {
+        return (
+            <Row>
+                <h1>Choose the image format. </h1>
+                <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
+                <Col lg={6}>
+                    Width: <input type="text" placeholder="38" />mm
+                </Col>
+                <Col lg={6}>
+                    Height: <input type="text" placeholder="48" />mm
+                </Col>
+            </Row >
+        );
+    }
+}
+
+class SheetFormat extends Component {
+    render() {
+        return (
+            <Row>
+                <h1>Choose the sheet format. </h1>
+                <p>Example: For A4 paper the width is 210mm and the height is 297mm. </p>
+                <Col lg={6}>
+                    Width: <input type="text" placeholder="210" />mm
+                </Col>
+                <Col lg={6}>
+                    Height: <input type="text" placeholder="297" />mm
+                </Col>
+            </Row >
         );
     }
 }
 
 class CropImageWindow extends Component {
+    setCropArea = () => {
+
+    }
     render() {
         return (
             <div className="CropImageWindow">
@@ -68,7 +106,7 @@ class CropImage extends Component {
     render() {
         let img = null;
         if (this.props.image) {
-            img = <img src={this.props.image}></img>;
+            img = <Image src={this.props.image} responsive thumbnail />;
         }
         return (
             img
@@ -90,12 +128,14 @@ class ImageUpload extends React.Component {
 
     render() {
         return (
-            <div className="imageUpload">
-                    <input className="fileInput"
-                        type="file"
-                        onChange={(e) => this._handleImageChange(e)} 
-                    />
-            </div>
+            <Row>
+                <h1>Upload image</h1>
+                <p>Upload and image in the formats: .PNG, .JPG, .GIF </p>
+                <input className="fileInput"
+                    type="file"
+                    onChange={(e) => this._handleImageChange(e)}
+                />
+            </Row>
         )
     }
 }
