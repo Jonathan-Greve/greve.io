@@ -16,9 +16,9 @@ class ImageSheet extends Component {
         this.state = {
             image: '',
             imageFormatWidth: 0,
-            imageFormatHeigth: 0,
+            imageFormatHeight: 0,
             sheetFormatWidth: 0,
-            sheetFormatHeigth: 0
+            sheetFormatHeight: 0
         };
         this.handleImageUpload = this.handleImageUpload.bind(this);
         this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
@@ -31,19 +31,19 @@ class ImageSheet extends Component {
             image
         })
     }
-    handleImageFormatChange(width, heigth) {
+    handleImageFormatChange(width, height) {
         console.log("handleImageFormatChange");
         this.setState({
             imageFormatWidth: width,
-            imageFormatHeigth: heigth
+            imageFormatHeight: height
         })
     }
 
-    handleSheetFormatChange(width, heigth) {
+    handleSheetFormatChange(width, height) {
         console.log("handleImageFormatChange");
         this.setState({
             sheetFormatWidth: width,
-            sheetFormatHeigth: heigth
+            sheetFormatHeight: height
         })
     }
     componentWillMount() {
@@ -72,7 +72,7 @@ class ImageSheet extends Component {
                         <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
                     </Col>
                     <Col lg={7}>
-                        <CropImageWindow image={this.state.image} />
+                        <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
                     </Col>
                 </Row>
             </div>
@@ -85,18 +85,18 @@ class ImageFormat extends Component {
         super(props);
         this.state = {
             widthValue: '',
-            heigthValue: ''
+            heightValue: ''
         }
 
         this.handleWidthChange = this.handleWidthChange.bind(this);
-        this.handleHeigthChange = this.handleHeigthChange.bind(this);
+        this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
     getValidationState(choice) {
         const validationRegex = new RegExp('^[1-9][0-9]*$');
         var stateChoice;
         if (choice === "width") stateChoice = this.state.widthValue;
-        else stateChoice = this.state.heigthValue;
+        else stateChoice = this.state.heightValue;
 
         const isNumber = validationRegex.test(stateChoice);
         const length = stateChoice.length;
@@ -113,19 +113,21 @@ class ImageFormat extends Component {
         this.setState({
             widthValue: e.target.value
         });
+        this.props.onImageFormatChange(e.target.value, this.state.heightValue);
     }
 
-    handleHeigthChange(e) {
-        console.log("handlelHeigthChange in imageFormat: " + e.target.value);
+    handleHeightChange(e) {
+        console.log("handlelHeightChange in imageFormat: " + e.target.value);
         this.setState({
-            heigthValue: e.target.value
+            heightValue: e.target.value
         });
+        this.props.onImageFormatChange(this.state.widthValue, e.target.value);
     }
     render() {
         return (
             <Form>
                 <h1>Choose the image format.</h1>
-                <p>Example: for US passport photos the width is 51mm and the heigth is 51mm. </p>
+                <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
                 <FormGroup
                     controlId="imageWidthFormat"
                     validationState={this.getValidationState("width")}
@@ -144,16 +146,16 @@ class ImageFormat extends Component {
                     <HelpBlock>Input has to be an integer (eg. 51).</HelpBlock>
                 </FormGroup>
                 <FormGroup
-                    controlId="imageHeigthFormat"
-                    validationState={this.getValidationState("heigth")}
+                    controlId="imageHeightFormat"
+                    validationState={this.getValidationState("height")}
                 >
                     <ControlLabel> Please input the image format width. </ControlLabel>
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.heigthValue}
-                            placeholder="Enter heigth"
-                            onChange={this.handleHeigthChange}
+                            value={this.heightValue}
+                            placeholder="Enter height"
+                            onChange={this.handleHeightChange}
                         />
                         <InputGroup.Addon>mm</InputGroup.Addon>
                     </InputGroup>
@@ -170,18 +172,18 @@ class SheetFormat extends Component {
         super(props);
         this.state = {
             widthValue: '',
-            heigthValue: ''
+            heightValue: ''
         }
 
         this.handleWidthChange = this.handleWidthChange.bind(this);
-        this.handleHeigthChange = this.handleHeigthChange.bind(this);
+        this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
     getValidationState(choice) {
         const validationRegex = new RegExp('^[1-9][0-9]*$');
         var stateChoice;
         if (choice === "width") stateChoice = this.state.widthValue;
-        else stateChoice = this.state.heigthValue;
+        else stateChoice = this.state.heightValue;
 
         const isNumber = validationRegex.test(stateChoice);
         const length = stateChoice.length;
@@ -200,17 +202,17 @@ class SheetFormat extends Component {
         });
     }
 
-    handleHeigthChange(e) {
-        console.log("handlelHeigthChange in imageFormat: " + e.target.value);
+    handleHeightChange(e) {
+        console.log("handlelHeightChange in imageFormat: " + e.target.value);
         this.setState({
-            heigthValue: e.target.value
+            heightValue: e.target.value
         });
     }
     render() {
         return (
             <Form>
                 <h1>Choose the sheet format.</h1>
-                <p>Example: For A4 paper the width is 210mm and the heigth is 297mm. </p>
+                <p>Example: For A4 paper the width is 210mm and the height is 297mm. </p>
                 <FormGroup
                     controlId="sheetWidthFormat"
                     validationState={this.getValidationState("width")}
@@ -229,16 +231,16 @@ class SheetFormat extends Component {
                     <HelpBlock>Input has to be an integer (eg. 210).</HelpBlock>
                 </FormGroup>
                 <FormGroup
-                    controlId="sheetHeigthFormat"
-                    validationState={this.getValidationState("heigth")}
+                    controlId="sheetHeightFormat"
+                    validationState={this.getValidationState("height")}
                 >
                     <ControlLabel> Please input the sheet format width. </ControlLabel>
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.heigthValue}
-                            placeholder="Enter heigth"
-                            onChange={this.handleHeigthChange}
+                            value={this.heightValue}
+                            placeholder="Enter height"
+                            onChange={this.handleHeightChange}
                         />
                         <InputGroup.Addon>mm</InputGroup.Addon>
                     </InputGroup>
@@ -250,11 +252,29 @@ class SheetFormat extends Component {
     }
 }
 
+class CropArea extends Component {
+    render() {
+        console.log("CropArea" + this.props.aspectRatio);
+        const _width = 200;
+        let _height = 200;
+        if (this.props.aspectRatio < 100) { _height = _width * this.props.aspectRatio; }
+        console.log("_width: " + _width);
+        console.log("_height: " + _height);
+
+        return (
+            <div draggable="true" className="cropImageWindow" style={{ width: _width, height: _height }}>
+            </div>
+        );
+    }
+}
+
 class CropImageWindow extends Component {
     render() {
+        console.log(this.props.image.width);
         return (
-            <div className="cropImageWindow">
+            <div>
                 <CropImage image={this.props.image} />
+                <CropArea aspectRatio={this.props.aspectRatio}/>
             </div>
         );
     }
