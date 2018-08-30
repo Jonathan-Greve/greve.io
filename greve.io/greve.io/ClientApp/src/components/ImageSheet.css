@@ -1,0 +1,9 @@
+﻿body {
+}
+
+.CropImageWindow > img {
+    max-width: 400px;
+    margin: 25px;
+    border: 1px solid black;
+    /*margin-left: calc(50% - 25px);*/
+}
