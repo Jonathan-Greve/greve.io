@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import {
     Col, Row, Image, Jumbotron, Form,
     FormGroup, FormControl, ControlLabel,
-    HelpBlock
+    HelpBlock, InputGroup
 } from 'react-bootstrap'
 import './ImageSheet.css'
 
@@ -97,7 +97,7 @@ class ImageFormat extends Component {
         var stateChoice;
         if (choice === "width") stateChoice = this.state.widthValue;
         else stateChoice = this.state.heigthValue;
-        
+
         const isNumber = validationRegex.test(stateChoice);
         const length = stateChoice.length;
         if (length > 0 && isNumber) {
@@ -131,12 +131,15 @@ class ImageFormat extends Component {
                     validationState={this.getValidationState("width")}
                 >
                     <ControlLabel> Please input the image format width. </ControlLabel>
-                    <FormControl
-                        type="text"
-                        value={this.widthValue}
-                        placeholder="Enter width"
-                        onChange={this.handleWidthChange}
-                    />
+                    <InputGroup>
+                        <FormControl
+                            type="text"
+                            value={this.widthValue}
+                            placeholder="Enter width"
+                            onChange={this.handleWidthChange}
+                        />
+                        <InputGroup.Addon>mm</InputGroup.Addon>
+                    </InputGroup>
                     <FormControl.Feedback />
                     <HelpBlock>Input has to be an integer (eg. 51).</HelpBlock>
                 </FormGroup>
@@ -145,12 +148,15 @@ class ImageFormat extends Component {
                     validationState={this.getValidationState("heigth")}
                 >
                     <ControlLabel> Please input the image format width. </ControlLabel>
-                    <FormControl
-                        type="text"
-                        value={this.heigthValue}
-                        placeholder="Enter heigth"
-                        onChange={this.handleHeigthChange}
-                    />
+                    <InputGroup>
+                        <FormControl
+                            type="text"
+                            value={this.heigthValue}
+                            placeholder="Enter heigth"
+                            onChange={this.handleHeigthChange}
+                        />
+                        <InputGroup.Addon>mm</InputGroup.Addon>
+                    </InputGroup>
                     <FormControl.Feedback />
                     <HelpBlock>Input has to be an integer (eg. 51).</HelpBlock>
                 </FormGroup>
@@ -160,19 +166,86 @@ class ImageFormat extends Component {
 }
 
 class SheetFormat extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            widthValue: '',
+            heigthValue: ''
+        }
 
+        this.handleWidthChange = this.handleWidthChange.bind(this);
+        this.handleHeigthChange = this.handleHeigthChange.bind(this);
+    }
+
+    getValidationState(choice) {
+        const validationRegex = new RegExp('^[1-9][0-9]*$');
+        var stateChoice;
+        if (choice === "width") stateChoice = this.state.widthValue;
+        else stateChoice = this.state.heigthValue;
+
+        const isNumber = validationRegex.test(stateChoice);
+        const length = stateChoice.length;
+        if (length > 0 && isNumber) {
+            if (length < 4) return 'success';
+            else return 'warning';
+        }
+        else if (!isNumber && length) return 'error';
+        else return null;
+    }
+
+    handleWidthChange(e) {
+        console.log("handlelWidthChange in imageFormat: " + e.target.value);
+        this.setState({
+            widthValue: e.target.value
+        });
+    }
+
+    handleHeigthChange(e) {
+        console.log("handlelHeigthChange in imageFormat: " + e.target.value);
+        this.setState({
+            heigthValue: e.target.value
+        });
+    }
     render() {
         return (
-            <div>
-                <h1>Choose the sheet format. </h1>
+            <Form>
+                <h1>Choose the sheet format.</h1>
                 <p>Example: For A4 paper the width is 210mm and the heigth is 297mm. </p>
-                <Col lg={6}>
-                    Width: <input type="text" placeholder="210" />mm
-                </Col>
-                <Col lg={6}>
-                    Heigth: <input type="text" placeholder="297" />mm
-                </Col>
-            </div>
+                <FormGroup
+                    controlId="sheetWidthFormat"
+                    validationState={this.getValidationState("width")}
+                >
+                    <ControlLabel> Please input the sheet format width. </ControlLabel>
+                    <InputGroup>
+                        <FormControl
+                            type="text"
+                            value={this.widthValue}
+                            placeholder="Enter width"
+                            onChange={this.handleWidthChange}
+                        />
+                        <InputGroup.Addon>mm</InputGroup.Addon>
+                    </InputGroup>
+                    <FormControl.Feedback />
+                    <HelpBlock>Input has to be an integer (eg. 210).</HelpBlock>
+                </FormGroup>
+                <FormGroup
+                    controlId="sheetHeigthFormat"
+                    validationState={this.getValidationState("heigth")}
+                >
+                    <ControlLabel> Please input the sheet format width. </ControlLabel>
+                    <InputGroup>
+                        <FormControl
+                            type="text"
+                            value={this.heigthValue}
+                            placeholder="Enter heigth"
+                            onChange={this.handleHeigthChange}
+                        />
+                        <InputGroup.Addon>mm</InputGroup.Addon>
+                    </InputGroup>
+                    <FormControl.Feedback />
+                    <HelpBlock>Input has to be an integer (eg. 297).</HelpBlock>
+                </FormGroup>
+            </Form>
         );
     }
 }
@@ -180,7 +253,7 @@ class SheetFormat extends Component {
 class CropImageWindow extends Component {
     render() {
         return (
-            <div className="CropImageWindow">
+            <div className="cropImageWindow">
                 <CropImage image={this.props.image} />
             </div>
         );
@@ -213,14 +286,24 @@ class ImageUpload extends React.Component {
 
     render() {
         return (
-            <div>
-                <h1>Upload image</h1>
-                <p>Upload and image in the formats: .PNG, .JPG, .GIF </p>
-                <input className="fileInput"
-                    type="file"
-                    onChange={(e) => this._handleImageChange(e)}
-                />
-            </div>
+            //<div>
+            //    <h1>Upload image</h1>
+            //    <p>Upload and image in the formats: .PNG, .JPG, .GIF </p>
+            //    <input className="fileInput"
+            //        type="file"
+            //        onChange={(e) => this._handleImageChange(e)}
+            //    />
+            //</div>
+            <Form>
+                <h1>Select an image</h1>
+                <FormGroup>
+                    <FormControl
+                        componentClass="input"
+                        type="file"
+                        onChange={(e) => this._handleImageChange(e)}
+                    />
+                </FormGroup>
+            </Form>
         )
     }
 }
