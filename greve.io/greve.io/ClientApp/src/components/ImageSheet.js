@@ -2,7 +2,11 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Col, Row, Image, Jumbotron } from 'react-bootstrap'
+import {
+    Col, Row, Image, Jumbotron, Form,
+    FormGroup, FormControl, ControlLabel,
+    HelpBlock
+} from 'react-bootstrap'
 import './ImageSheet.css'
 
 class ImageSheet extends Component {
@@ -10,19 +14,36 @@ class ImageSheet extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            images: [],
-            image: ''
+            image: '',
+            imageFormatWidth: 0,
+            imageFormatHeight: 0,
+            sheetFormatWidth: 0,
+            sheetFormatHeight: 0
         };
         this.handleImageUpload = this.handleImageUpload.bind(this);
+        this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
+        this.handleSheetFormatChange = this.handleSheetFormatChange.bind(this);
     }
 
     handleImageUpload(image) {
         console.log(image);
         this.setState({
-            image,
+            image
+        })
+    }
+    handleImageFormatChange(width, height) {
+        this.setState({
+            imageFormatWidth: width,
+            imageFormatHeight: height
         })
     }
 
+    handleSheetFormatChange(width, height) {
+        this.setState({
+            sheetFormatWidth: width,
+            sheetFormatHeight: height
+        })
+    }
     componentWillMount() {
         // This method runs when the component is first added to the page
         //const startDateIndex = parseInt(this.props.match.params.startDateIndex, 10) || 0;
@@ -44,8 +65,8 @@ class ImageSheet extends Component {
                 </Jumbotron>
                 <Col lg={5}>
                     <ImageUpload onImageUpload={this.handleImageUpload} />
-                    <ImageFormat />
-                    <SheetFormat />
+                    <ImageFormat onImageFormatChange={this.handleImageFormatChange} />
+                    <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
                 </Col>
                 <Col lg={7}>
                     <CropImageWindow image={this.state.image} />
@@ -56,23 +77,95 @@ class ImageSheet extends Component {
 }
 
 class ImageFormat extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            widthValue: '',
+            heightValue: ''
+        }
+
+        this.handleWidthChange = this.handleWidthChange.bind(this);
+        this.handleHeightChange = this.handleHeightChange.bind(this);
+    }
+
+    getValidationState() {
+        const validationRegex = new RegExp('[1-9][0-9]*');
+        const isNumber = validationRegex.test(this.state.widthValue)
+        const lenght = this.state.widthValue.lenght;
+        if (lenght > 0 && isNumber) {
+            if (lenght < 5) return 'success';
+            else return 'warning';
+        }
+        else return 'error';
+    }
+
+    handleWidthChange(e) {
+        this.setState({
+            widthValue: e.target.value
+        });
+    }
+
+    handleHeightChange(e) {
+        this.setState({
+            heightValue: e.target.value
+        });
+    }
     render() {
         return (
-            <Row>
-                <h1>Choose the image format. </h1>
-                <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
-                <Col lg={6}>
-                    Width: <input type="text" placeholder="38" />mm
-                </Col>
-                <Col lg={6}>
-                    Height: <input type="text" placeholder="48" />mm
-                </Col>
-            </Row >
+            <Form>
+                <FormGroup
+                    controlId="imageWidthFormat"
+                    validationState={this.getValidationState()}
+                >
+                    <ControlLabel> Please input the image format width. </ControlLabel>
+                    <FormControl
+                        type="text"
+                        value={this.widthValue}
+                        placeholder="Enter width"
+                        onChange={this.handleWidthChange}
+                    />
+                    <FormControl.Feedback />
+                    <HelpBlock>Input has to be an integer (eg. 51).</HelpBlock>
+                </FormGroup>
+                <FormGroup
+                    controlId="imageHeightFormat"
+                    validationState={this.getValidationState()}
+                >
+                    <ControlLabel> Please input the image format width. </ControlLabel>
+                    <FormControl
+                        type="text"
+                        value={this.heightValue}
+                        placeholder="Enter height"
+                        onChange={this.handleHeightChange}
+                    />
+                    <FormControl.Feedback />
+                    <HelpBlock>Input has to be an integer (eg. 51).</HelpBlock>
+                </FormGroup>
+            </Form>
+            //<Row>
+            //    <h1>Choose the image format. </h1>
+            //    <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
+            //    <Col lg={6}>
+            //        Width: <input
+            //            type="text"
+            //            name="width"
+            //            placeholder="38"
+            //        />mm
+            //    </Col>
+            //    <Col lg={6}>
+            //        Height: <input
+            //            type="text"
+            //            name="height"
+            //            placeholder="48"
+            //        />mm
+            //    </Col>
+            //</Row >
         );
     }
 }
 
 class SheetFormat extends Component {
+
     render() {
         return (
             <Row>
@@ -90,14 +183,13 @@ class SheetFormat extends Component {
 }
 
 class CropImageWindow extends Component {
-    setCropArea = () => {
-
-    }
     render() {
         return (
-            <div className="CropImageWindow">
-                <CropImage image={this.props.image} />
-            </div>
+            <Row>
+                <div className="CropImageWindow">
+                    <CropImage image={this.props.image} />
+                </div>
+            </Row>
         );
     }
 }
