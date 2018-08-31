@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import {
     Col, Row, Image, Jumbotron, Form,
     FormGroup, FormControl, ControlLabel,
-    HelpBlock, InputGroup
+    HelpBlock, InputGroup, PageHeader,
+    Tabs, Tab, Label
 } from 'react-bootstrap'
 import './ImageSheet.css'
 
@@ -62,7 +63,7 @@ class ImageSheet extends Component {
         return (
             <div>
                 <Jumbotron>
-                    <h1>Create image sheet</h1>
+                    <PageHeader>Create image sheet</PageHeader>
                     <p>Upload an image and choose the crop area, image format, and sheet format.</p>
                 </Jumbotron>
                 <Row>
@@ -72,10 +73,17 @@ class ImageSheet extends Component {
                         <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
                     </Col>
                     <Col lg={7}>
-                        <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
+                        <Tabs>
+                            <Tab eventKey={1} title="Crop Selector">
+                                <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
+                            </Tab>
+                            <Tab eventKey={2} title="Sheet preview">
+                                <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
+                            </Tab>
+                        </Tabs>
                     </Col>
                 </Row>
-            </div>
+            </div >
         );
     }
 }
@@ -126,7 +134,7 @@ class ImageFormat extends Component {
     render() {
         return (
             <Form>
-                <h1>Choose the image format.</h1>
+                <PageHeader>Choose the image format.</PageHeader>
                 <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
                 <FormGroup
                     controlId="imageWidthFormat"
@@ -211,7 +219,7 @@ class SheetFormat extends Component {
     render() {
         return (
             <Form>
-                <h1>Choose the sheet format.</h1>
+                <PageHeader>Choose the sheet format.</PageHeader>
                 <p>Example: For A4 paper the width is 210mm and the height is 297mm. </p>
                 <FormGroup
                     controlId="sheetWidthFormat"
@@ -253,16 +261,68 @@ class SheetFormat extends Component {
 }
 
 class CropArea extends Component {
+    constructor(props) {
+        super(props);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this._width = 200;
+        this._height = 200;
+        this.state = {
+            isMouseDown: false,
+            left: 20,
+            top: 47
+        }
+    }
+
+    onMouseDown = function (e) {
+        e.preventDefault();
+        this.setState({
+            isMouseDown: true
+        })
+        this.offsetX = e.pageX
+        this.offsetY = e.pageY
+        console.log("MOUSE IS DOWN: ", e);
+    }
+    onMouseMove = function (e) {
+        e.preventDefault();
+        if (this.state.isMouseDown) {
+            console.log("MOUSE IS MOVING: ", e.target);
+            this.setState({
+                left: this.state.left - (this.offsetX - e.pageX),
+                top: this.state.top - (this.offsetY - e.pageY)
+            })
+            this.offsetX = e.pageX;
+            this.offsetY = e.pageY;
+        }
+    }
+    onMouseUp = function (e) {
+        e.preventDefault();
+        this.setState({
+            isMouseDown: false
+        })
+        console.log("MOUSE IS UP: ", e);
+    }
+
     render() {
         console.log("CropArea" + this.props.aspectRatio);
-        const _width = 200;
-        let _height = 200;
-        if (this.props.aspectRatio < 100) { _height = _width * this.props.aspectRatio; }
-        console.log("_width: " + _width);
-        console.log("_height: " + _height);
+
+        if (this.props.aspectRatio < 100) { this._height = this._width * this.props.aspectRatio; }
+        console.log("_width: " + this._width);
+        console.log("_height: " + this._height);
+        console.log("_top: " + this._top);
+        console.log("_left: " + this._left);
+
 
         return (
-            <div draggable="true" className="cropImageWindow" style={{ width: _width, height: _height }}>
+            <div
+                className="cropImageWindow" style={{ width: this._width, height: this._height, left: this.state.left, top: this.state.top }}
+                onMouseDown={this.onMouseDown}
+                onMouseUp={this.onMouseUp}
+                onMouseMove={this.onMouseMove}>
             </div>
         );
     }
@@ -270,11 +330,15 @@ class CropArea extends Component {
 
 class CropImageWindow extends Component {
     render() {
+        let img = null;
+        if (this.props.image) {
+            img = <CropArea aspectRatio={this.props.aspectRatio} />;
+        }
         console.log(this.props.image.width);
         return (
             <div>
                 <CropImage image={this.props.image} />
-                <CropArea aspectRatio={this.props.aspectRatio}/>
+                {img}
             </div>
         );
     }
@@ -307,7 +371,7 @@ class ImageUpload extends React.Component {
     render() {
         return (
             //<div>
-            //    <h1>Upload image</h1>
+            //    <PageHeader>Upload image</PageHeader>
             //    <p>Upload and image in the formats: .PNG, .JPG, .GIF </p>
             //    <input className="fileInput"
             //        type="file"
@@ -315,7 +379,7 @@ class ImageUpload extends React.Component {
             //    />
             //</div>
             <Form>
-                <h1>Select an image</h1>
+                <PageHeader>Select an image</PageHeader>
                 <FormGroup>
                     <FormControl
                         componentClass="input"
