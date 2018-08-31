@@ -73,14 +73,7 @@ class ImageSheet extends Component {
                         <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
                     </Col>
                     <Col lg={7}>
-                        <Tabs>
-                            <Tab eventKey={1} title="Crop Selector">
-                                <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
-                            </Tab>
-                            <Tab eventKey={2} title="Sheet preview">
-                                <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
-                            </Tab>
-                        </Tabs>
+                        <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
                     </Col>
                 </Row>
             </div >
@@ -274,26 +267,33 @@ class CropArea extends Component {
         this.state = {
             isMouseDown: false,
             left: 20,
-            top: 47
+            top: 5,
+            imageWidth: 0,
+            imageHeight: 0
         }
     }
 
     onMouseDown = function (e) {
         e.preventDefault();
+        console.log("imageWidth: ", document.getElementById("cropImageId").style.width);
         this.setState({
-            isMouseDown: true
+            isMouseDown: true,
+            imageWidth: document.getElementById("cropImageId").offsetWidth,
+            imageHeight: document.getElementById("cropImageId").offsetHeight
         })
         this.offsetX = e.pageX
         this.offsetY = e.pageY
-        console.log("MOUSE IS DOWN: ", e);
     }
     onMouseMove = function (e) {
         e.preventDefault();
         if (this.state.isMouseDown) {
-            console.log("MOUSE IS MOVING: ", e.target);
+            let left = Math.max(20, this.state.left - (this.offsetX - e.pageX));
+            left = Math.min(this.state.imageWidth - this._width + 11, left);
+            let top = Math.max(5, this.state.top - (this.offsetY - e.pageY));
+            top = Math.min(this.state.imageHeight - this._height - 5, top);
             this.setState({
-                left: this.state.left - (this.offsetX - e.pageX),
-                top: this.state.top - (this.offsetY - e.pageY)
+                left: left,
+                top: top
             })
             this.offsetX = e.pageX;
             this.offsetY = e.pageY;
@@ -304,12 +304,9 @@ class CropArea extends Component {
         this.setState({
             isMouseDown: false
         })
-        console.log("MOUSE IS UP: ", e);
     }
 
     render() {
-        console.log("CropArea" + this.props.aspectRatio);
-
         if (this.props.aspectRatio < 100) { this._height = this._width * this.props.aspectRatio; }
         console.log("_width: " + this._width);
         console.log("_height: " + this._height);
@@ -332,7 +329,7 @@ class CropImageWindow extends Component {
     render() {
         let img = null;
         if (this.props.image) {
-            img = <CropArea aspectRatio={this.props.aspectRatio} />;
+            img = <CropArea aspectRatio={this.props.aspectRatio} image={this.props.image} />;
         }
         console.log(this.props.image.width);
         return (
@@ -348,7 +345,7 @@ class CropImage extends Component {
     render() {
         let img = null;
         if (this.props.image) {
-            img = <Image src={this.props.image} responsive thumbnail />;
+            img = <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />;
         }
         return (
             img
@@ -361,11 +358,14 @@ class ImageUpload extends React.Component {
 
         let reader = new FileReader();
         let file = e.target.files[0];
+        let image = new Image();
+
+        reader.onload = () => {
+            image.src = reader.result;
+            this.props.onImageUpload(image);
+        }
 
         reader.readAsDataURL(file)
-        reader.onloadend = () => {
-            this.props.onImageUpload(reader.result);
-        }
     }
 
     render() {
