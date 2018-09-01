@@ -270,7 +270,7 @@ class CropArea extends Component {
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < (this.state.left + 5) && yClickPos < (this.state.top+5)) return true;
+        if (xClickPos < (20 + 5) && yClickPos < (5+5)) return true;
         else return false;
     }
 
@@ -287,7 +287,9 @@ class CropArea extends Component {
         //this.cropAreaY = document.getElementsByClassName("cropImageWindow")[0].offsetTop;
         var rect = e.target.getBoundingClientRect();
         this.cropAreaX = e.clientX - rect.left;
-        this.cropAreay = e.clientY - rect.top;
+        this.cropAreaY = e.clientY - rect.top;
+        console.log(this.cropAreaX);
+        console.log(this.cropAreaY);
         //console.log("offsetX", document.getElementsByClassName("cropImageWindow")[0].offsetLeft);
         //console.log("offsetY", document.getElementsByClassName("cropImageWindow")[0].offsetTop);
     }
@@ -301,11 +303,15 @@ class CropArea extends Component {
             let top = Math.max(5, this.state.top - deltaY);
             top = Math.min(this.state.imageHeight - this.state.height - 5, top);
             if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                console.log("topLeftCorner HIT");
                 this.setState({
-                    width: this.width - deltaX,
-                    height: this.height - deltaY
+                    width: this.state.width + deltaX*2,
+                    height: (this.state.width + deltaX*2) * this.props.aspectRatio,
+                    left: this.state.left -deltaX*2,
+                    top: this.state.top - deltaX*2*this.props.aspectRatio 
                 })
             } else {
+                console.log("MOVING CROP AREA");
                 this.setState({
                     left: left,
                     top: top
