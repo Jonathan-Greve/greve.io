@@ -270,7 +270,7 @@ class CropArea extends Component {
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < (20 + 5) && yClickPos < (5+5)) return true;
+        if (xClickPos < (20 + 10) && yClickPos < (5+10)) return true;
         else return false;
     }
 
@@ -297,6 +297,10 @@ class CropArea extends Component {
         e.preventDefault();
         let deltaX = this.offsetX - e.pageX;
         let deltaY = this.offsetY - e.pageY;
+        let resizeSpeed = 0.7;
+        if (deltaX > 0) {
+            resizeSpeed = 1.3;
+        }
         if (this.state.isMouseDown) {
             let left = Math.max(20, this.state.left - deltaX);
             left = Math.min(this.state.imageWidth - this.state.width + 11, left);
@@ -305,10 +309,10 @@ class CropArea extends Component {
             if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
                 console.log("topLeftCorner HIT");
                 this.setState({
-                    width: this.state.width + deltaX*2,
-                    height: (this.state.width + deltaX*2) * this.props.aspectRatio,
-                    left: this.state.left -deltaX*2,
-                    top: this.state.top - deltaX*2*this.props.aspectRatio 
+                    width: this.state.width + deltaX*resizeSpeed,
+                    height: (this.state.width + deltaX*resizeSpeed) * this.props.aspectRatio,
+                    left: this.state.left -deltaX*resizeSpeed,
+                    top: this.state.top - deltaX*resizeSpeed*this.props.aspectRatio 
                 })
             } else {
                 console.log("MOVING CROP AREA");
