@@ -252,18 +252,26 @@ class CropArea extends Component {
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
+        this.isOnTopLeftCorner = this.isOnTopLeftCorner.bind(this);
 
         this.offsetX = 0;
         this.offsetY = 0;
-        this._width = 200;
-        this._height = 200;
+        this.cropAreaX = 0;
+        this.cropAreaY = 0;
         this.state = {
             isMouseDown: false,
             left: 20,
             top: 5,
+            width: 200,
+            height: 200,
             imageWidth: 0,
             imageHeight: 0
         }
+    }
+
+    isOnTopLeftCorner(xClickPos, yClickPos) {
+        if (xClickPos < (this.state.left + 5) && yClickPos < (this.state.top+5)) return true;
+        else return false;
     }
 
     onMouseDown = function (e) {
@@ -275,18 +283,34 @@ class CropArea extends Component {
         })
         this.offsetX = e.pageX
         this.offsetY = e.pageY
+        //this.cropAreaX = document.getElementsByClassName("cropImageWindow")[0].offsetLeft;
+        //this.cropAreaY = document.getElementsByClassName("cropImageWindow")[0].offsetTop;
+        var rect = e.target.getBoundingClientRect();
+        this.cropAreaX = e.clientX - rect.left;
+        this.cropAreay = e.clientY - rect.top;
+        //console.log("offsetX", document.getElementsByClassName("cropImageWindow")[0].offsetLeft);
+        //console.log("offsetY", document.getElementsByClassName("cropImageWindow")[0].offsetTop);
     }
     onMouseMove = function (e) {
         e.preventDefault();
+        let deltaX = this.offsetX - e.pageX;
+        let deltaY = this.offsetY - e.pageY;
         if (this.state.isMouseDown) {
-            let left = Math.max(20, this.state.left - (this.offsetX - e.pageX));
-            left = Math.min(this.state.imageWidth - this._width + 11, left);
-            let top = Math.max(5, this.state.top - (this.offsetY - e.pageY));
-            top = Math.min(this.state.imageHeight - this._height - 5, top);
-            this.setState({
-                left: left,
-                top: top
-            })
+            let left = Math.max(20, this.state.left - deltaX);
+            left = Math.min(this.state.imageWidth - this.state.width + 11, left);
+            let top = Math.max(5, this.state.top - deltaY);
+            top = Math.min(this.state.imageHeight - this.state.height - 5, top);
+            if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                this.setState({
+                    width: this.width - deltaX,
+                    height: this.height - deltaY
+                })
+            } else {
+                this.setState({
+                    left: left,
+                    top: top
+                })
+            }
             this.offsetX = e.pageX;
             this.offsetY = e.pageY;
         }
@@ -299,11 +323,11 @@ class CropArea extends Component {
     }
 
     render() {
-        if (this.props.aspectRatio < 100) { this._height = this._width * this.props.aspectRatio; }
+        if (this.props.aspectRatio < 100) { this.state.height = this.state.width * this.props.aspectRatio; }
 
         return (
             <div
-                className="cropImageWindow" style={{ width: this._width, height: this._height, left: this.state.left, top: this.state.top }}
+                className="cropImageWindow" style={{ width: this.state.width, height: this.state.height, left: this.state.left, top: this.state.top }}
                 onMouseDown={this.onMouseDown}
                 onMouseUp={this.onMouseUp}
                 onMouseMove={this.onMouseMove}>
@@ -334,7 +358,7 @@ class CropImage extends Component {
             img = <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />;
         }
         return (
-            img    
+            img
         );
     }
 }
