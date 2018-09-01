@@ -122,7 +122,7 @@ class ImageFormat extends Component {
     render() {
         return (
             <Form>
-                <PageHeader>Choose the image format.</PageHeader>
+                <PageHeader>(2) Choose the image format.</PageHeader>
                 <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
                 <FormGroup
                     controlId="imageWidthFormat"
@@ -205,7 +205,7 @@ class SheetFormat extends Component {
     render() {
         return (
             <Form>
-                <PageHeader>Choose the sheet format.</PageHeader>
+                <PageHeader>(3) Choose the sheet format.</PageHeader>
                 <p>Example: For A4 paper the width is 210mm and the height is 297mm. </p>
                 <FormGroup
                     controlId="sheetWidthFormat"
@@ -270,7 +270,7 @@ class CropArea extends Component {
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < (20 + 10) && yClickPos < (5+10)) return true;
+        if (xClickPos < (20 + 10) && yClickPos < (5 + 10)) return true;
         else return false;
     }
 
@@ -309,10 +309,10 @@ class CropArea extends Component {
             if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
                 console.log("topLeftCorner HIT");
                 this.setState({
-                    width: this.state.width + deltaX*resizeSpeed,
-                    height: (this.state.width + deltaX*resizeSpeed) * this.props.aspectRatio,
-                    left: this.state.left -deltaX*resizeSpeed,
-                    top: this.state.top - deltaX*resizeSpeed*this.props.aspectRatio 
+                    width: this.state.width + deltaX * resizeSpeed,
+                    height: (this.state.width + deltaX * resizeSpeed) * this.props.aspectRatio,
+                    left: this.state.left - deltaX * resizeSpeed,
+                    top: this.state.top - deltaX * resizeSpeed * this.props.aspectRatio
                 })
             } else {
                 console.log("MOVING CROP AREA");
@@ -364,11 +364,16 @@ class CropImageWindow extends Component {
 class CropImage extends Component {
     render() {
         let img = null;
+        let pageheader = null;
         if (this.props.image) {
             img = <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />;
+            pageheader = <PageHeader>(4) Crop the image</PageHeader>;
         }
         return (
-            img
+            <div>
+                {pageheader}
+                {img}
+            </div>
         );
     }
 }
@@ -390,7 +395,7 @@ class ImageUpload extends React.Component {
     render() {
         return (
             <Form>
-                <PageHeader>Select an image</PageHeader>
+                <PageHeader>(1) Select an image</PageHeader>
                 <FormGroup>
                     <FormControl
                         componentClass="input"
