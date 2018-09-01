@@ -6,7 +6,6 @@ import {
     Col, Row, Image, Jumbotron, Form,
     FormGroup, FormControl, ControlLabel,
     HelpBlock, InputGroup, PageHeader,
-    Tabs, Tab, Label
 } from 'react-bootstrap'
 import './ImageSheet.css'
 
@@ -33,7 +32,6 @@ class ImageSheet extends Component {
         })
     }
     handleImageFormatChange(width, height) {
-        console.log("handleImageFormatChange");
         this.setState({
             imageFormatWidth: width,
             imageFormatHeight: height
@@ -41,7 +39,6 @@ class ImageSheet extends Component {
     }
 
     handleSheetFormatChange(width, height) {
-        console.log("handleImageFormatChange");
         this.setState({
             sheetFormatWidth: width,
             sheetFormatHeight: height
@@ -110,7 +107,6 @@ class ImageFormat extends Component {
     }
 
     handleWidthChange(e) {
-        console.log("handlelWidthChange in imageFormat: " + e.target.value);
         this.setState({
             widthValue: e.target.value
         });
@@ -118,7 +114,6 @@ class ImageFormat extends Component {
     }
 
     handleHeightChange(e) {
-        console.log("handlelHeightChange in imageFormat: " + e.target.value);
         this.setState({
             heightValue: e.target.value
         });
@@ -197,14 +192,12 @@ class SheetFormat extends Component {
     }
 
     handleWidthChange(e) {
-        console.log("handlelWidthChange in imageFormat: " + e.target.value);
         this.setState({
             widthValue: e.target.value
         });
     }
 
     handleHeightChange(e) {
-        console.log("handlelHeightChange in imageFormat: " + e.target.value);
         this.setState({
             heightValue: e.target.value
         });
@@ -275,7 +268,6 @@ class CropArea extends Component {
 
     onMouseDown = function (e) {
         e.preventDefault();
-        console.log("imageWidth: ", document.getElementById("cropImageId").style.width);
         this.setState({
             isMouseDown: true,
             imageWidth: document.getElementById("cropImageId").offsetWidth,
@@ -308,11 +300,6 @@ class CropArea extends Component {
 
     render() {
         if (this.props.aspectRatio < 100) { this._height = this._width * this.props.aspectRatio; }
-        console.log("_width: " + this._width);
-        console.log("_height: " + this._height);
-        console.log("_top: " + this._top);
-        console.log("_left: " + this._left);
-
 
         return (
             <div
@@ -331,7 +318,6 @@ class CropImageWindow extends Component {
         if (this.props.image) {
             img = <CropArea aspectRatio={this.props.aspectRatio} image={this.props.image} />;
         }
-        console.log(this.props.image.width);
         return (
             <div>
                 <CropImage image={this.props.image} />
@@ -348,12 +334,12 @@ class CropImage extends Component {
             img = <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />;
         }
         return (
-            img
+            img    
         );
     }
 }
 class ImageUpload extends React.Component {
-    _handleImageChange(e) {
+    async _handleImageChange(e) {
         e.preventDefault();
 
         let reader = new FileReader();
@@ -364,20 +350,11 @@ class ImageUpload extends React.Component {
             image.src = reader.result;
             this.props.onImageUpload(image);
         }
-
         reader.readAsDataURL(file)
     }
 
     render() {
         return (
-            //<div>
-            //    <PageHeader>Upload image</PageHeader>
-            //    <p>Upload and image in the formats: .PNG, .JPG, .GIF </p>
-            //    <input className="fileInput"
-            //        type="file"
-            //        onChange={(e) => this._handleImageChange(e)}
-            //    />
-            //</div>
             <Form>
                 <PageHeader>Select an image</PageHeader>
                 <FormGroup>
