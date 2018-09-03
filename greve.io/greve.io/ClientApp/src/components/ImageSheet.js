@@ -368,12 +368,11 @@ class CropArea extends Component {
         })
     }
 
-    componentWillMount() {
+    componentDidMount() {
         let cropAreaStartLeft = document.getElementById("cropImageId").offsetLeft + this.imageBorder;
         let cropAreaStartTop = document.getElementById("cropImageId").offsetTop + this.imageBorder;
         let imageWidth = document.getElementById("cropImageId").offsetWidth;
         let imageHeight = document.getElementById("cropImageId").offsetHeight;
-        let aspectRatio = !this.props.aspectRatio ? 1.0 : this.props.aspectRatio;
         this.setState({
             imageWidth: imageWidth,
             imageHeight: imageHeight,
@@ -381,9 +380,9 @@ class CropArea extends Component {
             cropAreaStartTop: cropAreaStartTop,
             left: cropAreaStartLeft,
             top: cropAreaStartTop,
-            aspectRatio: aspectRatio,
+            aspectRatio: this.props.aspectRatio,
             width: imageWidth / 3,
-            height: (imageWidth / 3) * aspectRatio
+            height: (imageWidth / 3) * this.props.aspectRatio 
         })
     };
 
@@ -572,7 +571,9 @@ class CropImage extends Component {
         return (
             <div >
                 <PageHeader>(4) Crop the image</PageHeader>
-                <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />
+                <div id="cropImageId">
+                    <Image src={this.props.image.src} responsive thumbnail />
+                </div>
             </div>
         );
     }
