@@ -10,7 +10,6 @@ import {
 import './ImageSheet.css'
 
 class ImageSheet extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -25,24 +24,38 @@ class ImageSheet extends Component {
         this.handleSheetFormatChange = this.handleSheetFormatChange.bind(this);
     }
 
+    calculateAspectRatio() {
+        if (this.state.imageFormatHeight === 0 || this.state.imageFormatWidth === 0) {
+            return NaN;
+        }
+        return this.state.imageFormatHeight / this.state.imageFormatWidth;
+    }
+
     handleImageUpload(image) {
         console.log(image);
         this.setState({
-            image
-        })
+            image: image
+        });
     }
     handleImageFormatChange(width, height) {
         this.setState({
             imageFormatWidth: width,
             imageFormatHeight: height
-        })
+        });
+        console.log("imageformatChange height", height);
+        console.log("imageformatChange width", width);
     }
 
     handleSheetFormatChange(width, height) {
-        this.setState({
-            sheetFormatWidth: width,
-            sheetFormatHeight: height
-        })
+        if (width && height) {
+            this.setState({
+                sheetFormatWidth: width,
+                sheetFormatWidth: height
+            });
+        }
+        else {
+            console.log("handleSheetFormatChange, something went wrong.", width, height);
+        }
     }
     componentWillMount() {
         // This method runs when the component is first added to the page
@@ -57,6 +70,10 @@ class ImageSheet extends Component {
     }
 
     render() {
+        console.log("render width", this.state.imageFormatWidth);
+        console.log("render height", this.state.imageFormatHeight);
+        const aspectRatio = this.calculateAspectRatio();
+        console.log("render aspecRatio", aspectRatio);
         return (
             <div>
                 <Jumbotron>
@@ -64,13 +81,13 @@ class ImageSheet extends Component {
                     <p>Upload an image and choose the crop area, image format, and sheet format.</p>
                 </Jumbotron>
                 <Row>
-                    <Col lg={5}>
+                    <Col lg={6}>
                         <ImageUpload onImageUpload={this.handleImageUpload} />
                         <ImageFormat onImageFormatChange={this.handleImageFormatChange} />
                         <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
                     </Col>
-                    <Col lg={7}>
-                        <CropImageWindow image={this.state.image} aspectRatio={this.state.imageFormatHeight / this.state.imageFormatWidth} />
+                    <Col lg={6}>
+                        <CropImageWindow image={this.state.image} aspectRatio={aspectRatio} />
                     </Col>
                 </Row>
             </div >
@@ -81,13 +98,23 @@ class ImageSheet extends Component {
 class ImageFormat extends Component {
     constructor(props) {
         super(props);
+        this.hasChanged;
         this.state = {
-            widthValue: '',
-            heightValue: ''
+            widthValue: 0,
+            heightValue: 0
         }
 
         this.handleWidthChange = this.handleWidthChange.bind(this);
         this.handleHeightChange = this.handleHeightChange.bind(this);
+    }
+
+    componentDidUpdate(nextProps) {
+        if (this.hasChanged) {
+            this.props.onImageFormatChange(this.state.widthValue, this.state.heightValue);
+            console.log("width value", this.state.widthValue);
+            console.log("height value", this.state.heightValue);
+        }
+        this.hasChanged = false;
     }
 
     getValidationState(choice) {
@@ -108,17 +135,16 @@ class ImageFormat extends Component {
 
     handleWidthChange(e) {
         this.setState({
-            widthValue: e.target.value
+            widthValue: parseInt(e.target.value)
         });
-        this.props.onImageFormatChange(e.target.value, this.state.heightValue);
+        this.hasChanged = true;
     }
 
     handleHeightChange(e) {
         this.setState({
-            heightValue: e.target.value
+            heightValue: parseInt(e.target.value)
         });
-        this.props.onImageFormatChange(this.state.widthValue, e.target.value);
-
+        this.hasChanged = true;
     }
     render() {
         return (
@@ -273,10 +299,10 @@ class CropArea extends Component {
             cropAreaOffsetTop: 0,
             cropAreaOffsetLeft: 0,
             aspectRatio: 1
-        }
+        };
     }
 
-    componentDidMount() {
+    componentWillMount() {
         let cropAreaStartLeft = document.getElementById("cropImageId").offsetLeft + this.imageBorder;
         let cropAreaStartTop = document.getElementById("cropImageId").offsetTop + this.imageBorder;
         let imageWidth = document.getElementById("cropImageId").offsetWidth;
@@ -292,33 +318,44 @@ class CropArea extends Component {
             aspectRatio: aspectRatio,
             width: imageWidth / 3,
             height: (imageWidth / 3) * aspectRatio
-
         })
-        console.log("Aspect Ratio props: ", this.props.aspectRatio);
+    };
+
+    componentWillReceiveProps(nextProps) {
+        let cropAreaStartLeft = document.getElementById("cropImageId").offsetLeft + this.imageBorder;
+        let cropAreaStartTop = document.getElementById("cropImageId").offsetTop + this.imageBorder;
+        let imageWidth = document.getElementById("cropImageId").offsetWidth;
+        let imageHeight = document.getElementById("cropImageId").offsetHeight;
+        let aspectRatio = !nextProps.aspectRatio ? 1.0 : nextProps.aspectRatio;
+        this.setState({
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            cropAreaStartLeft: cropAreaStartLeft,
+            cropAreaStartTop: cropAreaStartTop,
+            left: cropAreaStartLeft,
+            top: cropAreaStartTop,
+            aspectRatio: aspectRatio,
+            width: imageWidth / 3,
+            height: (imageWidth / 3) * aspectRatio
+        });
+
+        console.log("Aspect Ratio props: ", nextProps.aspectRatio);
         console.log("Aspect Ratio: ", this.state.aspectRatio);
         console.log("ImageWidth: ", imageWidth);
         console.log("ImageHeight: ", imageHeight);
-        console.log("width didmount", this.state.width);
-    }
-
-    componentWillReceiveProps() {
-        let aspectRatio = this.props.aspectRatio === null ? 1.0 : this.props.aspectRatio;
-        this.setState({
-            aspectRatio: aspectRatio,
-            width: this.state.width,
-            height: this.state.height * aspectRatio
-        })
-        console.log("Aspect Ratio: ", this.state.aspectRatio);
-        console.log("height receiveprops", this.state.height);
+        console.log("width receive props", this.state.width);
+        console.log("height receive props", this.state.height);
+        console.log("left receive props", this.state.left);
+        console.log("top receive props", this.state.top);
     }
 
     calculateCropAreaLeftEdge(deltaX, deltaY) {
         let left = Math.max(this.state.cropAreaStartLeft, this.state.left - deltaX);
-        return Math.min(this.state.imageWidth - this.state.width + 10, left);
+        return Math.min(this.state.imageWidth - this.state.width + this.state.cropAreaStartLeft - this.imageBorder * 2, left);
     }
     calculateCropAreaRightEdge(deltaX, deltaY) {
         let top = Math.max(this.state.cropAreaStartTop, this.state.top - deltaY);
-        return Math.min(this.state.imageHeight - this.state.height + 74, top);
+        return Math.min(this.state.imageHeight - this.state.height + this.state.cropAreaStartTop - this.imageBorder * 2, top);
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
@@ -399,24 +436,45 @@ class CropArea extends Component {
 }
 
 class CropImageWindow extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            image: "",
+            aspectRatio: 1.0
+        };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log("cropImageWindow aspect ratio: ", nextProps.aspectRatio, this.props.aspectRatio);
+        this.setState({
+            image: nextProps.image,
+            aspectRatio: nextProps.aspectRatio
+        })
+    }
+
     render() {
         let croparea = null;
-        if (this.props.image && this.props.aspectRatio) {
-            croparea = <CropArea aspectRatio={this.props.aspectRatio} image={this.props.image} />;
+        let img = null;
+        if (this.state.image && this.state.aspectRatio) {
+            croparea = <CropArea aspectRatio={this.state.aspectRatio} image={this.state.image} />;
+            img = <CropImage image={this.state.image} />
         }
-        else if (this.props.image){
+        else if (this.state.image) {
             croparea = <LockedCropArea />
+            img = <CropImage image={this.state.image} />
         }
         return (
-            <CropImage image={this.props.image}>
+            <div>
+                {img}
                 {croparea}
-            </CropImage>
+            </div>
         );
     }
 }
 
 class LockedCropArea extends Component {
     render() {
+        console.log("LockedCropArea render");
         return (
             <div className="lockedCropArea">
                 Set image format before cropping.
@@ -427,19 +485,10 @@ class LockedCropArea extends Component {
 
 class CropImage extends Component {
     render() {
-        let img = null;
-        let pageheader = null;
-        if (this.props.image) {
-            img = <Image onLoad={console.log("image loaded")} src={this.props.image.src} responsive thumbnail />;
-            pageheader = <PageHeader>(4) Crop the image</PageHeader>;
-        }
         return (
-            <div>
-                {pageheader}
-                <div id="cropImageId">
-                    {img}
-                </div>
-                {this.props.children}
+            <div >
+                <PageHeader>(4) Crop the image</PageHeader>
+                <Image id="cropImageId" src={this.props.image.src} responsive thumbnail />
             </div>
         );
     }
@@ -452,7 +501,7 @@ class ImageUpload extends React.Component {
         let file = e.target.files[0];
         let image = new Image();
 
-        reader.onload = () => {
+        reader.onloadend = () => {
             image.src = reader.result;
             this.props.onImageUpload(image);
         }
