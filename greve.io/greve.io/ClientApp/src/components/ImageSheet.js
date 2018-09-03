@@ -6,7 +6,7 @@ import {
     Col, Row, Image, Jumbotron, Form,
     FormGroup, FormControl, ControlLabel,
     HelpBlock, InputGroup, PageHeader,
-    Button,  
+    Button,
 } from 'react-bootstrap'
 import './ImageSheet.css'
 
@@ -289,9 +289,18 @@ class CropArea extends Component {
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
-        this.isOnTopLeftCorner = this.isOnTopLeftCorner.bind(this);
         this.calculateCropAreaLeftEdge = this.calculateCropAreaLeftEdge.bind(this);
         this.calculateCropAreaRightEdge = this.calculateCropAreaRightEdge.bind(this);
+
+        this.isOnTopLeftCorner = this.isOnTopLeftCorner.bind(this);
+        this.isOnTopRightCorner = this.isOnTopRightCorner.bind(this);
+        this.isOnBottomLeftCorner = this.isOnBottomLeftCorner.bind(this);
+        this.isOnBottomRightCorner = this.isOnBottomRightCorner.bind(this);
+
+        this.resizeTopLeft = this.resizeTopLeft.bind(this);
+        this.resizeTopRight = this.resizeTopRight.bind(this);
+        this.resizeBottomLeft = this.resizeBottomLeft.bind(this);
+        this.resizeBottomRight = this.resizeBottomRight.bind(this);
 
         this.offsetX = 0;
         this.offsetY = 0;
@@ -310,6 +319,53 @@ class CropArea extends Component {
             cropAreaOffsetLeft: 0,
             aspectRatio: 1
         };
+    }
+    resizeTopLeft(deltaX) {
+        let resizeSpeed = 0.7;
+        if (deltaX > 0) {
+            resizeSpeed = 1.3;
+        }
+        this.setState({
+            width: this.state.width + deltaX * resizeSpeed,
+            height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
+            left: this.state.left - deltaX * resizeSpeed,
+            top: this.state.top - deltaX * resizeSpeed * this.state.aspectRatio
+        })
+    }
+
+    resizeTopRight(deltaX) {
+        let resizeSpeed = 0.7;
+        if (deltaX < 0) {
+            resizeSpeed = 1.3;
+        }
+        this.setState({
+            width: this.state.width - deltaX * resizeSpeed,
+            height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
+            top: this.state.top + deltaX * resizeSpeed * this.state.aspectRatio
+        })
+    }
+
+    resizeBottomLeft(deltaX) {
+        let resizeSpeed = 0.7;
+        if (deltaX > 0) {
+            resizeSpeed = 1.3;
+        }
+        this.setState({
+            width: this.state.width + deltaX * resizeSpeed,
+            height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
+            left: this.state.left - deltaX * resizeSpeed,
+        })
+    }
+
+    resizeBottomRight(deltaX) {
+        let resizeSpeed = 0.7;
+        if (deltaX < 0) {
+            resizeSpeed = 1.3;
+        }
+        this.setState({
+            width: this.state.width - deltaX * resizeSpeed,
+            height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
+        })
     }
 
     componentWillMount() {
@@ -369,7 +425,22 @@ class CropArea extends Component {
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < (this.state.cropAreaStartLeft + 10) && yClickPos < (this.state.cropAreaStartTop + 10)) return true;
+        if (xClickPos < 30 && yClickPos < 30) return true;
+        return false;
+    }
+
+    isOnTopRightCorner(xClickPos, yClickPos) {
+        if (xClickPos > (this.state.width - 30) && yClickPos < 30) return true;
+        return false;
+    }
+
+    isOnBottomLeftCorner(xClickPos, yClickPos) {
+        if (xClickPos < 30 && yClickPos > (this.state.height - 30)) return true;
+        return false;
+    }
+
+    isOnBottomRightCorner(xClickPos, yClickPos) {
+        if (xClickPos > (this.state.width - 30) && yClickPos > (this.state.height - 30)) return true;
         return false;
     }
 
@@ -389,6 +460,8 @@ class CropArea extends Component {
         // Calculates where inside the cropArea was clicked. Coordinates relative to cropArea (0 to cropAreas width).
         this.cropAreaX = e.clientX - rect.left;
         this.cropAreaY = e.clientY - rect.top;
+        console.log("cropAreaX = ", this.cropAreaX);
+        console.log("cropAreaY = ", this.cropAreaY);
         console.log("offsetX", document.getElementsByClassName("cropImageWindow")[0].offsetLeft);
         console.log("offsetY", document.getElementsByClassName("cropImageWindow")[0].offsetTop);
         console.log("this.state.cropAreaStartTop = ", this.state.cropAreaStartTop);
@@ -397,38 +470,36 @@ class CropArea extends Component {
         e.preventDefault();
         let deltaX = this.offsetX - e.pageX;
         let deltaY = this.offsetY - e.pageY;
-        let resizeSpeed = 0.7;
-        if (deltaX > 0) {
-            resizeSpeed = 1.3;
-        }
         if (this.state.isMouseDown) {
-            const left = this.calculateCropAreaLeftEdge(deltaX, deltaY);
-            const top = this.calculateCropAreaRightEdge(deltaX, deltaY);
-
             if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
-                console.log("topLeftCorner HIT", left, top);
+                this.resizeTopLeft(deltaX);
+            }
+            else if (this.isOnTopRightCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeTopRight(deltaX);
+            }
+            else if (this.isOnBottomLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeBottomLeft(deltaX)
+            }
+            else if (this.isOnBottomRightCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeBottomRight(deltaX)
+            }
+            else {
+                console.log("MOVING NOT RESIZING!");
                 this.setState({
-                    width: this.state.width + deltaX * resizeSpeed,
-                    height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
-                    left: this.state.left - deltaX * resizeSpeed,
-                    top: this.state.top - deltaX * resizeSpeed * this.state.aspectRatio
-                })
-            } else {
-                console.log("MOVING CROP AREA", left, top);
-                this.setState({
-                    left: left,
-                    top: top
+                    left: this.calculateCropAreaLeftEdge(deltaX, deltaY),
+                    top: this.calculateCropAreaRightEdge(deltaX, deltaY)
                 })
             }
             this.offsetX = e.pageX;
             this.offsetY = e.pageY;
         }
     }
+
     onMouseUp = function (e) {
         e.preventDefault();
         this.setState({
             isMouseDown: false
-        })
+        });
     }
 
     render() {
