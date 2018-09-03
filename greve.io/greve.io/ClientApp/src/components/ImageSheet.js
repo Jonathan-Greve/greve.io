@@ -6,6 +6,7 @@ import {
     Col, Row, Image, Jumbotron, Form,
     FormGroup, FormControl, ControlLabel,
     HelpBlock, InputGroup, PageHeader,
+    Button,  
 } from 'react-bootstrap'
 import './ImageSheet.css'
 
@@ -42,20 +43,13 @@ class ImageSheet extends Component {
             imageFormatWidth: width,
             imageFormatHeight: height
         });
-        console.log("imageformatChange height", height);
-        console.log("imageformatChange width", width);
     }
 
     handleSheetFormatChange(width, height) {
-        if (width && height) {
-            this.setState({
-                sheetFormatWidth: width,
-                sheetFormatWidth: height
-            });
-        }
-        else {
-            console.log("handleSheetFormatChange, something went wrong.", width, height);
-        }
+        this.setState({
+            sheetFormatWidth: width,
+            sheetFormatWidth: height
+        });
     }
     componentWillMount() {
         // This method runs when the component is first added to the page
@@ -84,12 +78,17 @@ class ImageSheet extends Component {
                     <Col lg={6}>
                         <ImageUpload onImageUpload={this.handleImageUpload} />
                         <ImageFormat onImageFormatChange={this.handleImageFormatChange} />
-                        <SheetFormat onSheetFormatChange={this.handleImageFormatChange} />
+                        <SheetFormat onSheetFormatChange={this.handleSheetFormatChange} />
                     </Col>
                     <Col lg={6}>
-                        <CropImageWindow image={this.state.image} aspectRatio={aspectRatio} />
+                        <CropImageWindow image={this.state.image} aspectRatio={aspectRatio}>
+                            <Button className="createSheetButton"
+                                bsStyle="success" bsSize="large" >
+                                Create image sheet
+                             </Button>
+                        </CropImageWindow>
                     </Col>
-                </Row>
+                </Row >
             </div >
         );
     }
@@ -104,26 +103,25 @@ class ImageFormat extends Component {
             heightValue: 0
         }
 
+        this.validationRegex = new RegExp('^[1-9][0-9]*$');
+
         this.handleWidthChange = this.handleWidthChange.bind(this);
         this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
     componentDidUpdate(nextProps) {
         if (this.hasChanged) {
-            this.props.onImageFormatChange(this.state.widthValue, this.state.heightValue);
-            console.log("width value", this.state.widthValue);
-            console.log("height value", this.state.heightValue);
+            this.props.onImageFormatChange(parseInt(this.state.widthValue), parseInt(this.state.heightValue));
         }
         this.hasChanged = false;
     }
 
     getValidationState(choice) {
-        const validationRegex = new RegExp('^[1-9][0-9]*$');
         var stateChoice;
         if (choice === "width") stateChoice = this.state.widthValue;
         else stateChoice = this.state.heightValue;
 
-        const isNumber = validationRegex.test(stateChoice);
+        const isNumber = this.validationRegex.test(stateChoice);
         const length = stateChoice.length;
         if (length > 0 && isNumber) {
             if (length < 4) return 'success';
@@ -135,17 +133,18 @@ class ImageFormat extends Component {
 
     handleWidthChange(e) {
         this.setState({
-            widthValue: parseInt(e.target.value)
+            widthValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
         });
         this.hasChanged = true;
     }
 
     handleHeightChange(e) {
         this.setState({
-            heightValue: parseInt(e.target.value)
+            heightValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
         });
         this.hasChanged = true;
     }
+
     render() {
         return (
             <Form>
@@ -198,17 +197,26 @@ class SheetFormat extends Component {
             heightValue: ''
         }
 
+        this.hasChanged = false;
+        this.validationRegex = new RegExp('^[1-9][0-9]*$');
+
         this.handleWidthChange = this.handleWidthChange.bind(this);
         this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
+    componentDidUpdate() {
+        if (this.hasChanged) {
+            this.props.onSheetFormatChange(parseInt(this.state.widthValue), parseInt(this.state.heightValue));
+        }
+        this.hasChanged = false;
+    }
+
     getValidationState(choice) {
-        const validationRegex = new RegExp('^[1-9][0-9]*$');
         var stateChoice;
         if (choice === "width") stateChoice = this.state.widthValue;
         else stateChoice = this.state.heightValue;
 
-        const isNumber = validationRegex.test(stateChoice);
+        const isNumber = this.validationRegex.test(stateChoice);
         const length = stateChoice.length;
         if (length > 0 && isNumber) {
             if (length < 4) return 'success';
@@ -220,14 +228,16 @@ class SheetFormat extends Component {
 
     handleWidthChange(e) {
         this.setState({
-            widthValue: e.target.value
+            widthValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
         });
+        this.hasChanged = true;
     }
 
     handleHeightChange(e) {
         this.setState({
-            heightValue: e.target.value
+            heightValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
         });
+        this.hasChanged = true;
     }
     render() {
         return (
@@ -455,18 +465,21 @@ class CropImageWindow extends Component {
     render() {
         let croparea = null;
         let img = null;
+        let children = null;
         if (this.state.image && this.state.aspectRatio) {
             croparea = <CropArea aspectRatio={this.state.aspectRatio} image={this.state.image} />;
-            img = <CropImage image={this.state.image} />
+            img = <CropImage image={this.state.image} />;
+            children = this.props.children;
         }
         else if (this.state.image) {
-            croparea = <LockedCropArea />
-            img = <CropImage image={this.state.image} />
+            croparea = <LockedCropArea />;
+            img = <CropImage image={this.state.image} />;
         }
         return (
             <div>
                 {img}
                 {croparea}
+                {children}
             </div>
         );
     }
