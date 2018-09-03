@@ -403,15 +403,6 @@ class CropArea extends Component {
             width: imageWidth / 3,
             height: (imageWidth / 3) * aspectRatio
         });
-
-        console.log("Aspect Ratio props: ", nextProps.aspectRatio);
-        console.log("Aspect Ratio: ", this.state.aspectRatio);
-        console.log("ImageWidth: ", imageWidth);
-        console.log("ImageHeight: ", imageHeight);
-        console.log("width receive props", this.state.width);
-        console.log("height receive props", this.state.height);
-        console.log("left receive props", this.state.left);
-        console.log("top receive props", this.state.top);
     }
 
     calculateCropAreaLeftEdge(deltaX, deltaY) {
@@ -429,6 +420,7 @@ class CropArea extends Component {
     }
 
     isOnTopRightCorner(xClickPos, yClickPos) {
+        console.log("xClickPos, yClickPos, Width, Height", xClickPos, yClickPos, this.state.width, this.state.height);
         if (xClickPos > (this.state.width - 30) && yClickPos < 30) return true;
         return false;
     }
@@ -461,14 +453,14 @@ class CropArea extends Component {
         this.cropAreaY = e.clientY - rect.top;
         console.log("cropAreaX = ", this.cropAreaX);
         console.log("cropAreaY = ", this.cropAreaY);
-        console.log("offsetX", document.getElementsByClassName("cropImageWindow")[0].offsetLeft);
-        console.log("offsetY", document.getElementsByClassName("cropImageWindow")[0].offsetTop);
-        console.log("this.state.cropAreaStartTop = ", this.state.cropAreaStartTop);
     }
     onMouseMove = function (e) {
         e.preventDefault();
         let deltaX = this.offsetX - e.pageX;
         let deltaY = this.offsetY - e.pageY;
+
+        //BUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WHEN RESIZING ANYTHING BUT TOP LEFT, THE this.state.width or this.state.height will change while resizing causing the resizing to end.
+        //FIND A WAY TO RESIZE EITHER WITHOUT USING THESE TWO STATES OR SET A VALUE INDICATING A RESIZE IS IN PROGRESS UNTIL MOUSEUP AND NOT TO INTERRUPT IT.
         if (this.state.isMouseDown) {
             if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
                 this.resizeTopLeft(deltaX);
@@ -502,8 +494,6 @@ class CropArea extends Component {
     }
 
     render() {
-        console.log("height render: ", this.state.height);
-        console.log("width render: ", this.state.width);
         return (
             <div
                 className="cropImageWindow" style={{ width: this.state.width, height: this.state.height, left: this.state.left, top: this.state.top }}
@@ -525,7 +515,6 @@ class CropImageWindow extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("cropImageWindow aspect ratio: ", nextProps.aspectRatio, this.props.aspectRatio);
         this.setState({
             image: nextProps.image,
             aspectRatio: nextProps.aspectRatio
