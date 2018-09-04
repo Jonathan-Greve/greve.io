@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ImagePermutatorLibrary;
+using System.Drawing;
+using System.IO;
 
 namespace greve.io.Controllers
 {
@@ -12,11 +15,27 @@ namespace greve.io.Controllers
     {
         // GET: api/ImagePermutator
         [HttpGet("[action]")]
-        public JsonResult Get(string name)
+        public JsonResult GetImageSheet(
+            int imageWidth, int imageHeight, int sheetWidth, int sheetHeight,
+            int xStart, int yStart, int cropWidth, int cropHeight, string image)
         {
-            var reply = "Hello " + name + ", my name is Bob.";
-            var test = new JsonResult(reply);
-            return test;
+            Image inputImage = StringToImage(image);
+            ImageSheet sheet = ImageSheet.FromImage(inputImage);
+            sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));
+            sheet.SetImageFormat(new CustomImageFormat(imageWidth, imageHeight));
+            sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
+            sheet.Create();
+
+            JsonResult outputImage = new JsonResult(sheet.OutputImage.RawFormat); 
+
+            return outputImage;
+        }
+
+        private Image StringToImage(string imageString)
+        {
+            byte[] bytes = Convert.FromBase64String(imageString);
+            Stream imageStream = new MemoryStream(bytes);
+            return new Bitmap(imageStream);
         }
 
         // GET: api/ImagePermutator/5
