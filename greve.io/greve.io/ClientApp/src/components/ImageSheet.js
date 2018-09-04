@@ -331,7 +331,7 @@ class CropArea extends Component {
             height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
             left: this.state.left - deltaX * resizeSpeed,
             top: this.state.top - deltaX * resizeSpeed * this.state.aspectRatio
-        })
+        });
     }
 
     resizeTopRight(deltaX) {
@@ -343,7 +343,7 @@ class CropArea extends Component {
             width: this.state.width - deltaX * resizeSpeed,
             height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
             top: this.state.top + deltaX * resizeSpeed * this.state.aspectRatio
-        })
+        });
     }
 
     resizeBottomLeft(deltaX) {
@@ -355,7 +355,7 @@ class CropArea extends Component {
             width: this.state.width + deltaX * resizeSpeed,
             height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
             left: this.state.left - deltaX * resizeSpeed,
-        })
+        });
     }
 
     resizeBottomRight(deltaX) {
@@ -366,7 +366,7 @@ class CropArea extends Component {
         this.setState({
             width: this.state.width - deltaX * resizeSpeed,
             height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
-        })
+        });
     }
 
     componentDidMount() {
@@ -416,23 +416,22 @@ class CropArea extends Component {
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < 30 && yClickPos < 30) return true;
+        if (xClickPos < 20 && yClickPos < 20) return true;
         return false;
     }
 
     isOnTopRightCorner(xClickPos, yClickPos) {
-        console.log("xClickPos, yClickPos, Width, Height", xClickPos, yClickPos, this.state.width, this.state.height);
-        if (xClickPos > (this.state.width - 30) && yClickPos < 30) return true;
+        if (xClickPos > (this.state.width - 20) && yClickPos < 20) return true;
         return false;
     }
 
     isOnBottomLeftCorner(xClickPos, yClickPos) {
-        if (xClickPos < 30 && yClickPos > (this.state.height - 30)) return true;
+        if (xClickPos < 20 && yClickPos > (this.state.height - 20)) return true;
         return false;
     }
 
     isOnBottomRightCorner(xClickPos, yClickPos) {
-        if (xClickPos > (this.state.width - 30) && yClickPos > (this.state.height - 30)) return true;
+        if (xClickPos > (this.state.width - 20) && yClickPos > (this.state.height - 20)) return true;
         return false;
     }
 
@@ -452,8 +451,6 @@ class CropArea extends Component {
         // Calculates where inside the cropArea was clicked. Coordinates relative to cropArea (0 to cropAreas width).
         this.cropAreaX = e.clientX - rect.left;
         this.cropAreaY = e.clientY - rect.top;
-        console.log("cropAreaX = ", this.cropAreaX);
-        console.log("cropAreaY = ", this.cropAreaY);
     }
     onMouseMove = function (e) {
         e.preventDefault();
@@ -473,14 +470,13 @@ class CropArea extends Component {
             }
             else if (this.resizeDirection === "bl" || this.isOnBottomLeftCorner(this.cropAreaX, this.cropAreaY)) {
                 this.resizeDirection = "bl";
-                this.resizeBottomLeft(deltaX)
+                this.resizeBottomLeft(deltaX);
             }
             else if (this.resizeDirection === "br" || this.isOnBottomRightCorner(this.cropAreaX, this.cropAreaY)) {
                 this.resizeDirection = "br";
-                this.resizeBottomRight(deltaX)
+                this.resizeBottomRight(deltaX);
             }
             else {
-                console.log("MOVING NOT RESIZING!");
                 this.setState({
                     left: this.calculateCropAreaLeftEdge(deltaX, deltaY),
                     top: this.calculateCropAreaRightEdge(deltaX, deltaY)
