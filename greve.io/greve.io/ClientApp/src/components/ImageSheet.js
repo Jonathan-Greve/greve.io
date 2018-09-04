@@ -307,6 +307,7 @@ class CropArea extends Component {
         this.cropAreaX = 0;
         this.cropAreaY = 0;
         this.imageBorder = 5;
+        this.resizeDirection = null;
         this.state = {
             isMouseDown: false,
             left: 0,
@@ -382,7 +383,7 @@ class CropArea extends Component {
             top: cropAreaStartTop,
             aspectRatio: this.props.aspectRatio,
             width: imageWidth / 3,
-            height: (imageWidth / 3) * this.props.aspectRatio 
+            height: (imageWidth / 3) * this.props.aspectRatio
         })
     };
 
@@ -462,16 +463,20 @@ class CropArea extends Component {
         //BUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WHEN RESIZING ANYTHING BUT TOP LEFT, THE this.state.width or this.state.height will change while resizing causing the resizing to end.
         //FIND A WAY TO RESIZE EITHER WITHOUT USING THESE TWO STATES OR SET A VALUE INDICATING A RESIZE IS IN PROGRESS UNTIL MOUSEUP AND NOT TO INTERRUPT IT.
         if (this.state.isMouseDown) {
-            if (this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
+            if (this.resizeDirection === "tl" || this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeDirection = "tl";
                 this.resizeTopLeft(deltaX);
             }
-            else if (this.isOnTopRightCorner(this.cropAreaX, this.cropAreaY)) {
+            else if (this.resizeDirection === "tr" || this.isOnTopRightCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeDirection = "tr";
                 this.resizeTopRight(deltaX);
             }
-            else if (this.isOnBottomLeftCorner(this.cropAreaX, this.cropAreaY)) {
+            else if (this.resizeDirection === "bl" || this.isOnBottomLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeDirection = "bl";
                 this.resizeBottomLeft(deltaX)
             }
-            else if (this.isOnBottomRightCorner(this.cropAreaX, this.cropAreaY)) {
+            else if (this.resizeDirection === "br" || this.isOnBottomRightCorner(this.cropAreaX, this.cropAreaY)) {
+                this.resizeDirection = "br";
                 this.resizeBottomRight(deltaX)
             }
             else {
@@ -488,6 +493,7 @@ class CropArea extends Component {
 
     onMouseUp = function (e) {
         e.preventDefault();
+        this.resizeDirection = null;
         this.setState({
             isMouseDown: false
         });
