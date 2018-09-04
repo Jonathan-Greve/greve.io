@@ -1,40 +1,46 @@
-﻿const requestGreeting = 'REQUEST_GREETING';
-const receiveGreeting = 'RECEIVE_GREETING';
-const initialState = { name: "", greeting: "" };
+﻿const requestSheet = 'REQUEST_SHEET';
+const receiveSheet = 'RECEIVE_SHEET';
+const initialState = { image: "", sheet: "" };
 
 export const actionCreators = {
-    requestGreeting: name => async (dispatch, getState) => {
-        if (name === getState().imageSheet.name) {
-            console.log("Name has already been set!....................");
+    requestSheet: (imgWidth, imgHeight, sheetWidth, sheetHeight, xStart, yStart, cropWidth, cropHeight, image) => async (dispatch, getState) => {
+        if (image === getState().imageSheet.image) {
+            console.log("Image has already been set!....................");
             return;
         }
 
-        dispatch({ type: requestGreeting, name });
+        dispatch({ type: requestSheet, image });
 
-        const url = `api/ImagePermutator/Get?name=${name}`;
+        const url = `api/ImagePermutator/GetImageSheet?imageWidth=${imgWidth}&imageHeight=${imgHeight}
+                            &sheetWidth=${sheetWidth}&sheetHeight=${sheetHeight}&xStart=${xStart}
+                            &yStart=${yStart}&cropWidth=${cropWidth}&cropHeight=${cropHeight}
+                            &image=${image}`;
         const response = await fetch(url);
-        const greeting = await response.json();
+        debugger;
+        const sheet = await response.json();
 
 
-        dispatch({ type: receiveGreeting, name, greeting });
+        dispatch({ type: receiveSheet, image, sheet });
     }
 };
 
 export const reducer = (state, action) => {
     state = state || initialState;
 
-    if (action.type === requestGreeting) {
+    if (action.type === requestSheet) {
         return {
             ...state,
-            name: action.name
+            image: action.image,
+            loading: true
         };
     }
 
-    if (action.type === receiveGreeting) {
+    if (action.type === receiveSheet) {
         return {
             ...state,
-            name: action.name,
-            greeting: action.greeting
+            image: action.image,
+            sheet: action.sheet,
+            loading: false
         }
     }
 

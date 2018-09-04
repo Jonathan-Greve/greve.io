@@ -31,7 +31,10 @@ class ImageSheet extends Component {
         this.handleCreateClick = this.handleCreateClick.bind(this);
     }
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.greeting);
+        console.log(nextProps.image);
+        this.setState({
+            image: nextProps.image
+        });
     }
 
     calculateAspectRatio() {
@@ -42,7 +45,10 @@ class ImageSheet extends Component {
     }
 
     handleCreateClick() {
-        this.props.requestGreeting("Jonathan");
+        debugger;
+        this.props.requestSheet(this.state.imageFormatWidth, this.state.imageFormatHeight,
+            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 2100, 1400, 2000, 2000,
+            this.state.image.src);
     }
 
     handleImageUpload(image) {
@@ -61,7 +67,7 @@ class ImageSheet extends Component {
     handleSheetFormatChange(width, height) {
         this.setState({
             sheetFormatWidth: width,
-            sheetFormatWidth: height
+            sheetFormatHeight: height
         });
     }
 
