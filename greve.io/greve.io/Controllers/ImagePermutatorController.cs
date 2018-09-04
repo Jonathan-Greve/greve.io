@@ -11,10 +11,12 @@ namespace greve.io.Controllers
     public class ImagePermutatorController : ControllerBase
     {
         // GET: api/ImagePermutator
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("[action]")]
+        public JsonResult Get(string name)
         {
-            return new string[] { "value1", "value2" };
+            var reply = "Hello " + name + ", my name is Bob.";
+            var test = new JsonResult(reply);
+            return test;
         }
 
         // GET: api/ImagePermutator/5

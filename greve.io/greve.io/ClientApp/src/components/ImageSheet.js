@@ -13,6 +13,7 @@ import ImageUpload from './ImageUpload.js';
 import ImageFormat from './ImageFormat.js';
 import SheetFormat from './SheetFormat.js';
 import CropImageWindow from './CropImageWindow';
+import { actionCreators } from '../store/ImageSheet';
 
 class ImageSheet extends Component {
     constructor(props) {
@@ -27,6 +28,10 @@ class ImageSheet extends Component {
         this.handleImageUpload = this.handleImageUpload.bind(this);
         this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
         this.handleSheetFormatChange = this.handleSheetFormatChange.bind(this);
+        this.handleCreateClick = this.handleCreateClick.bind(this);
+    }
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps.greeting);
     }
 
     calculateAspectRatio() {
@@ -34,6 +39,10 @@ class ImageSheet extends Component {
             return NaN;
         }
         return this.state.imageFormatHeight / this.state.imageFormatWidth;
+    }
+
+    handleCreateClick() {
+        this.props.requestGreeting("Jonathan");
     }
 
     handleImageUpload(image) {
@@ -76,6 +85,7 @@ class ImageSheet extends Component {
                     <Col lg={6}>
                         <CropImageWindow image={this.state.image} aspectRatio={aspectRatio}>
                             <Button className="createSheetButton"
+                                onClick={this.handleCreateClick}
                                 bsStyle="success" bsSize="large" >
                                 Create image sheet
                              </Button>
@@ -88,5 +98,6 @@ class ImageSheet extends Component {
 }
 
 export default connect(
-    state => state
+    state => state.imageSheet,
+    dispatch => bindActionCreators(actionCreators, dispatch)
 )(ImageSheet);
