@@ -19,16 +19,25 @@ namespace greve.io.Controllers
             int imageWidth, int imageHeight, int sheetWidth, int sheetHeight,
             int xStart, int yStart, int cropWidth, int cropHeight, string image)
         {
-            Image inputImage = StringToImage(image);
+            string[] splitImage = image.Split(",");
+            Image inputImage = StringToImage(splitImage[1]);
             ImageSheet sheet = ImageSheet.FromImage(inputImage);
             sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));
             sheet.SetImageFormat(new CustomImageFormat(imageWidth, imageHeight));
             sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
             sheet.Create();
 
-            JsonResult outputImage = new JsonResult(sheet.OutputImage.RawFormat); 
+            //JsonResult outputImageString = new JsonResult(sheet.OutputImage.RawFormat);
+            byte[] result;
+            using (MemoryStream stream = new MemoryStream())
+            {
+                sheet.OutputImage.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                result = stream.ToArray();
+            }
+            string outputImageString = Convert.ToBase64String(result);
+            outputImageString = splitImage[0] + "," + outputImageString;
 
-            return outputImage;
+            return new JsonResult(outputImageString);
         }
 
         private Image StringToImage(string imageString)
