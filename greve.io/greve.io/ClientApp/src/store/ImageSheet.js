@@ -13,7 +13,6 @@ export const actionCreators = {
 
         let data = new FormData();
         data.append("imageFile1", image);
-        debugger;
         const url = `api/ImagePermutator/GetImageSheet?imageWidth=${imgWidth}&imageHeight=${imgHeight}
                             &sheetWidth=${sheetWidth}&sheetHeight=${sheetHeight}&xStart=${xStart}
                             &yStart=${yStart}&cropWidth=${cropWidth}&cropHeight=${cropHeight}`;

@@ -12,7 +12,8 @@ import './ImageSheet.css';
 import ImageUpload from './ImageUpload.js';
 import ImageFormat from './ImageFormat.js';
 import SheetFormat from './SheetFormat.js';
-import CropImageWindow from './CropImageWindow';
+import CropImageWindow from './CropImageWindow.js';
+import PreviewSheet from './PreviewSheet.js';
 import { actionCreators } from '../store/ImageSheet';
 
 class ImageSheet extends Component {
@@ -23,7 +24,8 @@ class ImageSheet extends Component {
             imageFormatWidth: 0,
             imageFormatHeight: 0,
             sheetFormatWidth: 0,
-            sheetFormatHeight: 0
+            sheetFormatHeight: 0,
+            sheet: ''
         };
         this.handleImageUpload = this.handleImageUpload.bind(this);
         this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
@@ -32,10 +34,9 @@ class ImageSheet extends Component {
     }
     componentWillReceiveProps(nextProps) {
         console.log(nextProps.sheet);
-        var imageHandle = { ...this.state.image };
-        imageHandle.src = nextProps.sheet;
+        const sheet = nextProps.sheet;
         this.setState({
-            image: imageHandle
+            sheet: sheet
         });
     }
 
@@ -98,6 +99,8 @@ class ImageSheet extends Component {
                                 Create image sheet
                              </Button>
                         </CropImageWindow>
+                        <PreviewSheet sheet={this.state.sheet}>
+                        </PreviewSheet>
                     </Col>
                 </Row >
             </div >
