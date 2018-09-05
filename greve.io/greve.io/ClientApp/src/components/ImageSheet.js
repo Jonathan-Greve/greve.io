@@ -49,7 +49,7 @@ class ImageSheet extends Component {
     handleCreateClick() {
         console.log(this.state.image.src);
         this.props.requestSheet(this.state.imageFormatWidth, this.state.imageFormatHeight,
-            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 0, 0, 10, 18,
+            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 2100, 1400, 2000, 2000,
             this.state.image.src);
     }
 

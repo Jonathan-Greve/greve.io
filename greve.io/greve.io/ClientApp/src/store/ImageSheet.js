@@ -11,12 +11,21 @@ export const actionCreators = {
 
         dispatch({ type: requestSheet, image });
 
+        let data = new FormData();
+        data.append("imageFile1", image);
+        debugger;
         const url = `api/ImagePermutator/GetImageSheet?imageWidth=${imgWidth}&imageHeight=${imgHeight}
                             &sheetWidth=${sheetWidth}&sheetHeight=${sheetHeight}&xStart=${xStart}
-                            &yStart=${yStart}&cropWidth=${cropWidth}&cropHeight=${cropHeight}
-                            &image=${image}`;
-        const response = await fetch(url);
-        debugger;
+                            &yStart=${yStart}&cropWidth=${cropWidth}&cropHeight=${cropHeight}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(image)
+        });
         const sheet = await response.json();
 
 

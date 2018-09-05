@@ -14,20 +14,24 @@ namespace greve.io.Controllers
     public class ImagePermutatorController : ControllerBase
     {
         // GET: api/ImagePermutator
-        [HttpGet("[action]")]
+        [HttpPost("[action]")]
         public JsonResult GetImageSheet(
             int imageWidth, int imageHeight, int sheetWidth, int sheetHeight,
-            int xStart, int yStart, int cropWidth, int cropHeight, string image)
+            int xStart, int yStart, int cropWidth, int cropHeight, [FromBody] string data)
         {
+            System.IO.File.WriteAllText("C:\\Users\\Jonathan Greve\\Pictures\\TestImages\\inputImage.txt", data);
+            string image = data;
             string[] splitImage = image.Split(",");
             Image inputImage = StringToImage(splitImage[1]);
+            inputImage.Save("C:\\Users\\Jonathan Greve\\Pictures\\TestImages\\inputImageWeb.png");
+
             ImageSheet sheet = ImageSheet.FromImage(inputImage);
             sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));
             sheet.SetImageFormat(new CustomImageFormat(imageWidth, imageHeight));
             sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
             sheet.Create();
+            sheet.OutputImage.Save("C:\\Users\\Jonathan Greve\\Pictures\\TestImages\\TestOutWeb.png");
 
-            //JsonResult outputImageString = new JsonResult(sheet.OutputImage.RawFormat);
             byte[] result;
             using (MemoryStream stream = new MemoryStream())
             {
