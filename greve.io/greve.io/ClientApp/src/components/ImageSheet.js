@@ -31,9 +31,11 @@ class ImageSheet extends Component {
         this.handleCreateClick = this.handleCreateClick.bind(this);
     }
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.image);
+        console.log(nextProps.sheet);
+        var imageHandle = { ...this.state.image };
+        imageHandle.src = nextProps.sheet;
         this.setState({
-            image: nextProps.image
+            image: imageHandle
         });
     }
 
@@ -45,9 +47,9 @@ class ImageSheet extends Component {
     }
 
     handleCreateClick() {
-        debugger;
+        console.log(this.state.image.src);
         this.props.requestSheet(this.state.imageFormatWidth, this.state.imageFormatHeight,
-            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 2100, 1400, 2000, 2000,
+            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 0, 0, 10, 18,
             this.state.image.src);
     }
 
