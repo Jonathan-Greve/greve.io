@@ -22,7 +22,6 @@ class ImageFormat extends Component {
     }
 
     componentWillMount() {
-        console.log("IMAGE IN IMAGEFORMAT: ", this.props.image);
         this.props.image.imageFormatWidth =
             this.props.image.imageFormatWidth ? this.props.image.imageFormatWidth : "";
         this.props.image.imageFormatHeight =
@@ -90,7 +89,7 @@ class ImageFormat extends Component {
                     controlId="imageHeightFormat"
                     validationState={this.getValidationState("height")}
                 >
-                    <ControlLabel> Please input the image format width. </ControlLabel>
+                    <ControlLabel> Please input the image format height. </ControlLabel>
                     <InputGroup>
                         <FormControl
                             type="text"
