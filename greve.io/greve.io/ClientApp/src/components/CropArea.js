@@ -120,6 +120,8 @@ class CropArea extends Component {
         let imageWidth = document.getElementById("cropImageId").offsetWidth;
         let imageHeight = document.getElementById("cropImageId").offsetHeight;
         let aspectRatio = !nextProps.aspectRatio ? 1.0 : nextProps.aspectRatio;
+
+
         this.setState({
             imageWidth: imageWidth,
             imageHeight: imageHeight,
@@ -220,6 +222,19 @@ class CropArea extends Component {
         this.setState({
             isMouseDown: false
         });
+        console.log("left: ", this.state.left - this.state.cropAreaStartLeft);
+        console.log("top: ", this.state.top - this.state.cropAreaStartTop);
+        console.log("cropWidth: ", this.state.width);
+        console.log("cropHeight: ", this.state.height);
+
+        console.log("xStartPercentage: ", ((this.state.left - this.state.cropAreaStartLeft) / (this.state.imageWidth - this.imageBorder * 2)) * 100);
+        console.log("yStartPercentage: ", ((this.state.top - this.state.cropAreaStartTop) / (this.state.imageHeight - this.imageBorder * 2)) * 100);
+        console.log("cropWidthPercentage: ", (this.state.width / this.state.imageWidth) * 100);
+        console.log("cropHeightPercentage: ", (this.state.height / this.state.imageHeight) * 100);
+        this.props.image.xStart = ((this.state.left - this.state.cropAreaStartLeft) / (this.state.imageWidth - this.imageBorder * 2)) * 100;
+        this.props.image.yStart = ((this.state.top - this.state.cropAreaStartTop) / (this.state.imageHeight - this.imageBorder * 2)) * 100;
+        this.props.image.cropWidth = (this.state.width / (this.state.imageWidth - this.imageBorder * 2)) * 100;
+        this.props.image.cropHeight = (this.state.height / (this.state.imageHeight - this.imageBorder * 2)) * 100;
     }
 
     render() {

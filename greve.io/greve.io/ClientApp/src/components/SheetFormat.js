@@ -21,7 +21,6 @@ class SheetFormat extends Component {
     }
 
     componentWillMount() {
-        console.log("IMAGE IN SHEETFORMAT: ", this.props.image);
         this.props.image.sheetWidth = this.props.image.sheetWidth ? this.props.image.sheetWidth : "";
         this.props.image.sheetHeight = this.props.image.sheetHeight? this.props.image.sheetHeight: "";
         this.props.setImage(this.props.image);

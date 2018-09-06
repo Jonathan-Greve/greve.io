@@ -17,10 +17,16 @@ namespace greve.io.Controllers
         [HttpPost("[action]")]
         public JsonResult GetImageSheet(
             int imageWidth, int imageHeight, int sheetWidth, int sheetHeight,
-            int xStart, int yStart, int cropWidth, int cropHeight, [FromBody] string image)
+            float xStartPercent, float yStartPercent, float cropWidthPercent, float cropHeightPercent, [FromBody] string image)
         {
             string[] splitImage = image.Split(",");
             Image inputImage = StringToImage(splitImage[1]);
+
+            //Convert from percentage values to image-relative values.
+            int xStart = (int)(inputImage.Width * (xStartPercent / 100)); 
+            int yStart = (int)(inputImage.Height * (yStartPercent / 100));
+            int cropHeight = (int)(inputImage.Height * (cropHeightPercent / 100));
+            int cropWidth= (int)(inputImage.Width* (cropWidthPercent/ 100));
 
             ImageSheet sheet = ImageSheet.FromImage(inputImage);
             sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));

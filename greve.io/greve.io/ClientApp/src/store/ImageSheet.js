@@ -15,8 +15,8 @@ export const actionCreators = {
         dispatch({ type: requestSheet });
 
         const url = `api/ImagePermutator/GetImageSheet?imageWidth=${image.imageFormatWidth}&imageHeight=${image.imageFormatHeight}
-                            &sheetWidth=${image.sheetWidth}&sheetHeight=${image.sheetHeight}&xStart=${image.xStart}
-                            &yStart=${image.yStart}&cropWidth=${image.cropWidth}&cropHeight=${image.cropHeight}`;
+                            &sheetWidth=${image.sheetWidth}&sheetHeight=${image.sheetHeight}&xStartPercent=${image.xStart}
+                            &yStartPercent=${image.yStart}&cropWidthPercent=${image.cropWidth}&cropHeightPercent=${image.cropHeight}`;
         const response = await fetch(url, {
             method: 'POST',
             mode: 'cors',
@@ -44,6 +44,7 @@ export const actionCreators = {
         }
 
         const canCreate = checkCanCreate(image);
+        console.log("CAN CREATE: ", canCreate);
 
         dispatch({ type: setImage, image, canCreate });
     }

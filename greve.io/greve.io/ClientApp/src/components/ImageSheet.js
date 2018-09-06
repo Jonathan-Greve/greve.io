@@ -35,12 +35,7 @@ class ImageSheet extends Component {
 
 
     handleCreateClick() {
-        this.props.image.xStart = 2100;
-        this.props.image.yStart = 1400;
-        this.props.image.cropWidth = 2000;
-        this.props.image.cropHeight = 2000;
         this.props.setImage(this.props.image);
-        console.log(this.props.image);
         this.props.requestSheet(this.props.image);
     }
 
