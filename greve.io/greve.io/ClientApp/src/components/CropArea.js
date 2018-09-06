@@ -186,8 +186,6 @@ class CropArea extends Component {
         let deltaX = this.offsetX - e.pageX;
         let deltaY = this.offsetY - e.pageY;
 
-        //BUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WHEN RESIZING ANYTHING BUT TOP LEFT, THE this.state.width or this.state.height will change while resizing causing the resizing to end.
-        //FIND A WAY TO RESIZE EITHER WITHOUT USING THESE TWO STATES OR SET A VALUE INDICATING A RESIZE IS IN PROGRESS UNTIL MOUSEUP AND NOT TO INTERRUPT IT.
         if (this.state.isMouseDown) {
             if (this.resizeDirection === "tl" || this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
                 this.resizeDirection = "tl";
