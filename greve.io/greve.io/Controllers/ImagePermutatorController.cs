@@ -26,6 +26,11 @@ namespace greve.io.Controllers
             sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));
             sheet.SetImageFormat(new CustomImageFormat(imageWidth, imageHeight));
             sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
+            if(sheetHeight > sheetWidth)
+            {
+                sheet.SetCroppedImageRotation(RotateFlipType.Rotate270FlipNone);
+                sheet.SetOutputImageRotation(RotateFlipType.Rotate90FlipNone);
+            }
             sheet.Create();
 
             byte[] result;
