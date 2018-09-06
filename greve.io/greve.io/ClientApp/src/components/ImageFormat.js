@@ -8,34 +8,41 @@ import {
     HelpBlock, InputGroup, PageHeader,
     Button,
 } from 'react-bootstrap';
+import { actionCreators } from '../store/ImageSheet';
 
 class ImageFormat extends Component {
     constructor(props) {
         super(props);
-        this.hasChanged;
-        this.state = {
-            widthValue: 0,
-            heightValue: 0
-        }
 
         this.validationRegex = new RegExp('^[1-9][0-9]*$');
 
         this.handleWidthChange = this.handleWidthChange.bind(this);
         this.handleHeightChange = this.handleHeightChange.bind(this);
+        this.getValidationState = this.getValidationState.bind(this);
     }
 
-    componentDidUpdate(nextProps) {
-        if (this.hasChanged) {
-            this.props.onImageFormatChange(parseInt(this.state.widthValue), parseInt(this.state.heightValue));
+    componentWillMount() {
+        console.log("IMAGE IN IMAGEFORMAT: ", this.props.image);
+        this.props.image.imageFormatWidth =
+            this.props.image.imageFormatWidth ? this.props.image.imageFormatWidth : "";
+        this.props.image.imageFormatHeight =
+            this.props.image.imageFormatHeight ? this.props.image.imageFormatHeight : "";
+        this.props.setImage(this.props.image);
+    }
+
+    calculateAspectRatio() {
+        if (this.props.image.imageFormatHeight === 0 || this.props.image.imageFormatWidth === 0) {
+            return NaN;
         }
-        this.hasChanged = false;
+        return this.props.image.imageFormatHeight / this.props.image.imageFormatWidth;
     }
 
     getValidationState(choice) {
         var stateChoice;
-        if (choice === "width") stateChoice = this.state.widthValue;
-        else stateChoice = this.state.heightValue;
-
+        if (choice === "width") stateChoice = this.props.image.imageFormatWidth;
+        else stateChoice = this.props.image.imageFormatHeight;
+        if (!stateChoice) return;
+        stateChoice = stateChoice.toString();
         const isNumber = this.validationRegex.test(stateChoice);
         const length = stateChoice.length;
         if (length > 0 && isNumber) {
@@ -45,19 +52,16 @@ class ImageFormat extends Component {
         else if (!isNumber && length) return 'error';
         else return null;
     }
-
     handleWidthChange(e) {
-        this.setState({
-            widthValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
-        });
-        this.hasChanged = true;
+        this.props.image.imageFormatWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
+        this.props.setImage(this.props.image);
     }
 
     handleHeightChange(e) {
-        this.setState({
-            heightValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
-        });
-        this.hasChanged = true;
+        this.props.image.imageFormatHeight= this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
+        this.props.setImage(this.props.image);
     }
 
     render() {
@@ -73,7 +77,7 @@ class ImageFormat extends Component {
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.widthValue}
+                            value={this.props.image.imageFormatWidth}
                             placeholder="Enter width"
                             onChange={this.handleWidthChange}
                         />
@@ -90,7 +94,7 @@ class ImageFormat extends Component {
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.heightValue}
+                            value={this.props.image.imageFormatHeight}
                             placeholder="Enter height"
                             onChange={this.handleHeightChange}
                         />
@@ -104,4 +108,7 @@ class ImageFormat extends Component {
     }
 }
 
-export default ImageFormat
+export default connect(
+    state => state.imageSheet,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(ImageFormat);

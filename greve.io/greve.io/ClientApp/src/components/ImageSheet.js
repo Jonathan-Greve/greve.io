@@ -20,7 +20,6 @@ class ImageSheet extends Component {
     constructor(props) {
         super(props);
         this.handleImageUpload = this.handleImageUpload.bind(this);
-        this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
         this.handleCreateClick = this.handleCreateClick.bind(this);
     }
 
@@ -34,12 +33,6 @@ class ImageSheet extends Component {
         console.log("WillReceiveProps IMAGESHEET COMPONENT");
     }
 
-    calculateAspectRatio() {
-        if (this.props.image.imageFormatHeight === 0 || this.props.image.imageFormatWidth === 0) {
-            return NaN;
-        }
-        return this.props.image.imageFormatHeight / this.props.image.imageFormatWidth;
-    }
 
     handleCreateClick() {
         this.props.image.xStart = 2100;
@@ -56,12 +49,6 @@ class ImageSheet extends Component {
         this.props.image.src = src;
         this.props.setImage(this.props.image);
     }
-    handleImageFormatChange(width, height) {
-        this.props.image.imageFormatWidth = width;
-        this.props.image.imageFormatHeight = height;
-        this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
-        this.props.setImage(this.props.image);
-    }
 
     render() {
         return (
@@ -73,7 +60,7 @@ class ImageSheet extends Component {
                 <Row>
                     <Col lg={6}>
                         <ImageUpload onImageUpload={this.handleImageUpload} />
-                        <ImageFormat onImageFormatChange={this.handleImageFormatChange} />
+                        <ImageFormat />
                         <SheetFormat />
                     </Col>
                     <Col lg={6}>
