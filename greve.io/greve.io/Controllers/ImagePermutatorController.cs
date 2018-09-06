@@ -41,6 +41,10 @@ namespace greve.io.Controllers
             }
             string outputImageString = Convert.ToBase64String(result);
             outputImageString = splitImage[0] + "," + outputImageString;
+            inputImage.Dispose();
+            sheet.CroppedImage.Dispose();
+            sheet.OutputImage.Dispose();
+            sheet.SourceImage.Dispose();
 
             return new JsonResult(outputImageString);
         }

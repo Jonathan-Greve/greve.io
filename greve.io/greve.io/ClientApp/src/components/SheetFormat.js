@@ -8,34 +8,31 @@ import {
     HelpBlock, InputGroup, PageHeader,
     Button,
 } from 'react-bootstrap';
+import { actionCreators } from '../store/ImageSheet';
 
 class SheetFormat extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            widthValue: '',
-            heightValue: ''
-        }
-
-        this.hasChanged = false;
         this.validationRegex = new RegExp('^[1-9][0-9]*$');
-
+        
+        this.getValidationState = this.getValidationState.bind(this);
         this.handleWidthChange = this.handleWidthChange.bind(this);
         this.handleHeightChange = this.handleHeightChange.bind(this);
     }
 
-    componentDidUpdate() {
-        if (this.hasChanged) {
-            this.props.onSheetFormatChange(parseInt(this.state.widthValue), parseInt(this.state.heightValue));
-        }
-        this.hasChanged = false;
+    componentWillMount() {
+        console.log("IMAGE IN SHEETFORMAT: ", this.props.image);
+        this.props.image.sheetWidth = this.props.image.sheetWidth ? this.props.image.sheetWidth : "";
+        this.props.image.sheetHeight = this.props.image.sheetHeight? this.props.image.sheetHeight: "";
+        this.props.setImage(this.props.image);
     }
 
     getValidationState(choice) {
         var stateChoice;
-        if (choice === "width") stateChoice = this.state.widthValue;
-        else stateChoice = this.state.heightValue;
-
+        if (choice === "width") stateChoice = this.props.image.sheetWidth;
+        else stateChoice = this.props.image.sheetHeight;
+        if (!stateChoice) return;
+        stateChoice = stateChoice.toString();
         const isNumber = this.validationRegex.test(stateChoice);
         const length = stateChoice.length;
         if (length > 0 && isNumber) {
@@ -47,17 +44,13 @@ class SheetFormat extends Component {
     }
 
     handleWidthChange(e) {
-        this.setState({
-            widthValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
-        });
-        this.hasChanged = true;
+        this.props.image.sheetWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.setImage(this.props.image);
     }
 
     handleHeightChange(e) {
-        this.setState({
-            heightValue: this.validationRegex.test(e.target.value) ? e.target.value : "0"
-        });
-        this.hasChanged = true;
+        this.props.image.sheetHeight = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.setImage(this.props.image);
     }
     render() {
         return (
@@ -72,7 +65,7 @@ class SheetFormat extends Component {
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.widthValue}
+                            value={this.props.image.sheetWidth}
                             placeholder="Enter width"
                             onChange={this.handleWidthChange}
                         />
@@ -85,11 +78,11 @@ class SheetFormat extends Component {
                     controlId="sheetHeightFormat"
                     validationState={this.getValidationState("height")}
                 >
-                    <ControlLabel> Please input the sheet format width. </ControlLabel>
+                    <ControlLabel> Please input the sheet format height. </ControlLabel>
                     <InputGroup>
                         <FormControl
                             type="text"
-                            value={this.heightValue}
+                            value={this.props.image.sheetHeight}
                             placeholder="Enter height"
                             onChange={this.handleHeightChange}
                         />
@@ -102,5 +95,8 @@ class SheetFormat extends Component {
         );
     }
 }
+export default connect(
+    state => state.imageSheet,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(SheetFormat);
 
-export default SheetFormat

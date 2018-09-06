@@ -15,11 +15,9 @@ class ImageUpload extends React.Component {
 
         let reader = new FileReader();
         let file = e.target.files[0];
-        let image = new Image();
 
         reader.onloadend = () => {
-            image.src = reader.result;
-            this.props.onImageUpload(image);
+            this.props.onImageUpload(reader.result);
         }
         reader.readAsDataURL(file)
     }

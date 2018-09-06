@@ -8,6 +8,7 @@ import {
     HelpBlock, InputGroup, PageHeader,
     Button,
 } from 'react-bootstrap';
+import { actionCreators } from '../store/ImageSheet';
 
 class CropArea extends Component {
     constructor(props) {
@@ -233,4 +234,7 @@ class CropArea extends Component {
     }
 }
 
-export default CropArea
+export default connect(
+    state => state.imageSheet,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(CropArea);

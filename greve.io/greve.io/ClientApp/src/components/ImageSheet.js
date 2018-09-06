@@ -19,66 +19,51 @@ import { actionCreators } from '../store/ImageSheet';
 class ImageSheet extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            image: '',
-            imageFormatWidth: 0,
-            imageFormatHeight: 0,
-            sheetFormatWidth: 0,
-            sheetFormatHeight: 0,
-            sheet: ''
-        };
         this.handleImageUpload = this.handleImageUpload.bind(this);
         this.handleImageFormatChange = this.handleImageFormatChange.bind(this);
-        this.handleSheetFormatChange = this.handleSheetFormatChange.bind(this);
         this.handleCreateClick = this.handleCreateClick.bind(this);
     }
+
+    componentWillMount() {
+        console.log("WillMount IMAGESHEET COMPONENT");
+        this.props.setImage(this.props.image);
+        this.props.requestSheet(this.props.image);
+    }
+
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.sheet);
-        const sheet = nextProps.sheet;
-        this.setState({
-            sheet: sheet
-        });
+        console.log("WillReceiveProps IMAGESHEET COMPONENT");
     }
 
     calculateAspectRatio() {
-        if (this.state.imageFormatHeight === 0 || this.state.imageFormatWidth === 0) {
+        if (this.props.image.imageFormatHeight === 0 || this.props.image.imageFormatWidth === 0) {
             return NaN;
         }
-        return this.state.imageFormatHeight / this.state.imageFormatWidth;
+        return this.props.image.imageFormatHeight / this.props.image.imageFormatWidth;
     }
 
     handleCreateClick() {
-        console.log(this.state.image.src);
-        this.props.requestSheet(this.state.imageFormatWidth, this.state.imageFormatHeight,
-            this.state.sheetFormatWidth, this.state.sheetFormatHeight, 2100, 1400, 2000, 2000,
-            this.state.image.src);
+        this.props.image.xStart = 2100;
+        this.props.image.yStart = 1400;
+        this.props.image.cropWidth = 2000;
+        this.props.image.cropHeight = 2000;
+        this.props.setImage(this.props.image);
+        console.log(this.props.image);
+        this.props.requestSheet(this.props.image);
     }
 
-    handleImageUpload(image) {
-        console.log(image);
-        this.setState({
-            image: image
-        });
+    handleImageUpload(src) {
+        console.log("settingImageState in redux store");
+        this.props.image.src = src;
+        this.props.setImage(this.props.image);
     }
     handleImageFormatChange(width, height) {
-        this.setState({
-            imageFormatWidth: width,
-            imageFormatHeight: height
-        });
-    }
-
-    handleSheetFormatChange(width, height) {
-        this.setState({
-            sheetFormatWidth: width,
-            sheetFormatHeight: height
-        });
+        this.props.image.imageFormatWidth = width;
+        this.props.image.imageFormatHeight = height;
+        this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
+        this.props.setImage(this.props.image);
     }
 
     render() {
-        console.log("render width", this.state.imageFormatWidth);
-        console.log("render height", this.state.imageFormatHeight);
-        const aspectRatio = this.calculateAspectRatio();
-        console.log("render aspecRatio", aspectRatio);
         return (
             <div>
                 <Jumbotron>
@@ -89,17 +74,17 @@ class ImageSheet extends Component {
                     <Col lg={6}>
                         <ImageUpload onImageUpload={this.handleImageUpload} />
                         <ImageFormat onImageFormatChange={this.handleImageFormatChange} />
-                        <SheetFormat onSheetFormatChange={this.handleSheetFormatChange} />
+                        <SheetFormat />
                     </Col>
                     <Col lg={6}>
-                        <CropImageWindow image={this.state.image} aspectRatio={aspectRatio}>
+                        <CropImageWindow> 
                             <Button className="createSheetButton"
                                 onClick={this.handleCreateClick}
                                 bsStyle="success" bsSize="large" >
                                 Create image sheet
                              </Button>
                         </CropImageWindow>
-                        <PreviewSheet sheet={this.state.sheet}>
+                        <PreviewSheet sheet={this.props.sheet}>
                         </PreviewSheet>
                     </Col>
                 </Row >

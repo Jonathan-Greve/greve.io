@@ -9,35 +9,25 @@ import {
     Button,
 } from 'react-bootstrap';
 import CropArea from './CropArea.js';
+import { actionCreators } from '../store/ImageSheet';
 
 class CropImageWindow extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            image: "",
-            aspectRatio: 1.0
-        };
-    }
-
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            image: nextProps.image,
-            aspectRatio: nextProps.aspectRatio
-        })
+        console.log("CROP IMAGE WINDOW will rececive props");
     }
 
     render() {
         let croparea = null;
         let img = null;
         let children = null;
-        if (this.state.image && this.state.aspectRatio) {
-            croparea = <CropArea aspectRatio={this.state.aspectRatio} image={this.state.image} />;
-            img = <CropImage image={this.state.image} />;
+        if (this.props.image.src && this.props.image.imageFormatAspectRatio) {
+            croparea = <CropArea aspectRatio={this.props.image.imageFormatAspectRatio} />;
+            img = <CropImage image={this.props.image} />;
             children = this.props.children;
         }
-        else if (this.state.image) {
+        else if (this.props.image.src) {
             croparea = <LockedCropArea />;
-            img = <CropImage image={this.state.image} />;
+            img = <CropImage image={this.props.image} />;
         }
         return (
             <div>
@@ -61,16 +51,23 @@ class LockedCropArea extends Component {
 }
 
 class CropImage extends Component {
+    constructor(props) {
+        super(props);
+    }
     render() {
         return (
             <div >
                 <PageHeader>(4) Crop the image</PageHeader>
                 <div id="cropImageId">
-                    <Image src={this.props.image.src} responsive thumbnail />
+                    <Image className="cropImage" src={this.props.image.src} responsive thumbnail />
                 </div>
             </div>
         );
     }
 }
 
-export default CropImageWindow
+
+export default connect(
+    state => state.imageSheet,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(CropImageWindow);
