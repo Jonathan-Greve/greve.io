@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ImagePermutatorLibrary;
-using System.Drawing;
 using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.Primitives;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace greve.io.Controllers
 {
@@ -20,7 +18,7 @@ namespace greve.io.Controllers
             float xStartPercent, float yStartPercent, float cropWidthPercent, float cropHeightPercent, [FromBody] string image)
         {
             string[] splitImage = image.Split(",");
-            Image inputImage = StringToImage(splitImage[1]);
+            Image<Rgba32> inputImage = StringToImage(splitImage[1]);
 
             //Convert from percentage values to image-relative values.
             int xStart = (int)(inputImage.Width * (xStartPercent / 100)); 
@@ -34,19 +32,12 @@ namespace greve.io.Controllers
             sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
             if(sheetHeight > sheetWidth)
             {
-                sheet.SetCroppedImageRotation(RotateFlipType.Rotate270FlipNone);
-                sheet.SetOutputImageRotation(RotateFlipType.Rotate90FlipNone);
+                sheet.SetCroppedImageRotation(270);
+                sheet.SetOutputImageRotation(90);
             }
             sheet.Create();
 
-            byte[] result;
-            using (MemoryStream stream = new MemoryStream())
-            {
-                sheet.OutputImage.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                result = stream.ToArray();
-            }
-            string outputImageString = Convert.ToBase64String(result);
-            outputImageString = splitImage[0] + "," + outputImageString;
+            string outputImageString = sheet.OutputImage.ToBase64String(ImageFormats.Png); 
             inputImage.Dispose();
             sheet.CroppedImage.Dispose();
             sheet.OutputImage.Dispose();
@@ -55,11 +46,10 @@ namespace greve.io.Controllers
             return new JsonResult(outputImageString);
         }
 
-        private Image StringToImage(string imageString)
+        private Image<Rgba32> StringToImage(string imageString)
         {
             byte[] bytes = Convert.FromBase64String(imageString);
-            Stream imageStream = new MemoryStream(bytes);
-            return new Bitmap(imageStream);
+            return Image.Load(bytes);
         }
 
         // GET: api/ImagePermutator/5
