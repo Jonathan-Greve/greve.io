@@ -17,7 +17,7 @@ class CropArea extends Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.calculateCropAreaLeftEdge = this.calculateCropAreaLeftEdge.bind(this);
-        this.calculateCropAreaRightEdge = this.calculateCropAreaRightEdge.bind(this);
+        this.calculateCropAreaTopEdge = this.calculateCropAreaTopEdge.bind(this);
 
         this.isOnTopLeftCorner = this.isOnTopLeftCorner.bind(this);
         this.isOnTopRightCorner = this.isOnTopRightCorner.bind(this);
@@ -35,6 +35,7 @@ class CropArea extends Component {
         this.cropAreaY = 0;
         this.imageBorder = 5;
         this.resizeDirection = null;
+        this.canResizeLarger = true;
         this.state = {
             isMouseDown: false,
             left: 0,
@@ -48,17 +49,30 @@ class CropArea extends Component {
             aspectRatio: 1
         };
     }
+
     resizeTopLeft(deltaX) {
         let resizeSpeed = 0.7;
         if (deltaX > 0) {
             resizeSpeed = 1.3;
         }
-        this.setState({
-            width: this.state.width + deltaX * resizeSpeed,
-            height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
-            left: this.state.left - deltaX * resizeSpeed,
-            top: this.state.top - deltaX * resizeSpeed * this.state.aspectRatio
-        });
+        let newLeft = this.calculateCropAreaLeftEdge(this.state.left - deltaX * resizeSpeed);
+        let newTop = this.calculateCropAreaTopEdge(this.state.top - deltaX * resizeSpeed * this.state.aspectRatio);
+        if (this.canResizeLarger) {
+            this.setState({
+                width: Math.min(this.state.imageWidth - this.imageBorder * 2, this.state.width + deltaX * resizeSpeed),
+                height: Math.min(this.state.imageHeight - this.imageBorder * 2, (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio),
+                left: newLeft,
+                top: newTop
+            });
+        }
+        if (deltaX < 0) {
+            this.setState({
+                width: this.state.width + deltaX * resizeSpeed,
+                height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
+                left: newLeft, 
+                top: newTop 
+            })
+        }
     }
 
     resizeTopRight(deltaX) {
@@ -66,11 +80,15 @@ class CropArea extends Component {
         if (deltaX < 0) {
             resizeSpeed = 1.3;
         }
-        this.setState({
-            width: this.state.width - deltaX * resizeSpeed,
-            height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
-            top: this.state.top + deltaX * resizeSpeed * this.state.aspectRatio
-        });
+        //let newLeft = this.calculateCropAreaLeftEdge(this.state.left - deltaX * resizeSpeed);
+        let newTop = this.calculateCropAreaTopEdge(this.state.top + deltaX * resizeSpeed * this.state.aspectRatio);
+        if (this.state.imageWidth - (this.state.width + this.state.left) > 0) {
+            this.setState({
+                width: this.canResizeLarger ? this.state.width - deltaX * resizeSpeed : this.state.width,
+                height: this.canResizeLarger ? (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio : this.state.height,
+                top: this.canResizeLarger ? newTop : this.state.top,
+            });
+        }
     }
 
     resizeBottomLeft(deltaX) {
@@ -78,10 +96,11 @@ class CropArea extends Component {
         if (deltaX > 0) {
             resizeSpeed = 1.3;
         }
+        let newLeft = this.calculateCropAreaLeftEdge(this.state.left - deltaX * resizeSpeed);
         this.setState({
-            width: this.state.width + deltaX * resizeSpeed,
-            height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
-            left: this.state.left - deltaX * resizeSpeed,
+            width: this.canResizeLarger ? this.state.width + deltaX * resizeSpeed : this.state.height,
+            height: this.canResizeLarger ? (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio : this.state.height,
+            left: this.canResizeLarger ? newLeft : this.state.left
         });
     }
 
@@ -90,6 +109,7 @@ class CropArea extends Component {
         if (deltaX < 0) {
             resizeSpeed = 1.3;
         }
+
         this.setState({
             width: this.state.width - deltaX * resizeSpeed,
             height: (this.state.width - deltaX * resizeSpeed) * this.state.aspectRatio,
@@ -135,13 +155,19 @@ class CropArea extends Component {
         });
     }
 
-    calculateCropAreaLeftEdge(deltaX, deltaY) {
-        let left = Math.max(this.state.cropAreaStartLeft, this.state.left - deltaX);
-        return Math.min(this.state.imageWidth - this.state.width + this.state.cropAreaStartLeft - this.imageBorder * 2, left);
+    calculateCropAreaLeftEdge(left) {
+        let newLeft = Math.max(this.state.cropAreaStartLeft, left);
+        newLeft = Math.min(this.state.imageWidth - this.state.width + this.state.cropAreaStartLeft - this.imageBorder * 2, newLeft);
+        if (newLeft !== left) this.canResizeLarger = false;
+        else this.canResizeLarger = this.canResizeLarger && true;
+        return newLeft;
     }
-    calculateCropAreaRightEdge(deltaX, deltaY) {
-        let top = Math.max(this.state.cropAreaStartTop, this.state.top - deltaY);
-        return Math.min(this.state.imageHeight - this.state.height + this.state.cropAreaStartTop - this.imageBorder * 2, top);
+    calculateCropAreaTopEdge(top) {
+        let newTop = Math.max(this.state.cropAreaStartTop, top);
+        newTop = Math.min(this.state.imageHeight - this.state.height + this.state.cropAreaStartTop - this.imageBorder * 2, newTop);
+        if (newTop != top) this.canResizeLarger = false;
+        else this.canResizeLarger = this.canResizeLarger && true;
+        return newTop;
     }
 
     isOnTopLeftCorner(xClickPos, yClickPos) {
@@ -187,26 +213,36 @@ class CropArea extends Component {
         let deltaY = this.offsetY - e.pageY;
 
         if (this.state.isMouseDown) {
+            this.canResizeLarger = true;
             if (this.resizeDirection === "tl" || this.isOnTopLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                console.log("tl");
                 this.resizeDirection = "tl";
                 this.resizeTopLeft(deltaX);
             }
             else if (this.resizeDirection === "tr" || this.isOnTopRightCorner(this.cropAreaX, this.cropAreaY)) {
+                console.log("tr");
+                console.log("TOP__________________: ", this.state.top);
+                console.log("HEIGHT__________________: ", this.state.height);
                 this.resizeDirection = "tr";
                 this.resizeTopRight(deltaX);
             }
             else if (this.resizeDirection === "bl" || this.isOnBottomLeftCorner(this.cropAreaX, this.cropAreaY)) {
+                console.log("bl");
                 this.resizeDirection = "bl";
                 this.resizeBottomLeft(deltaX);
             }
             else if (this.resizeDirection === "br" || this.isOnBottomRightCorner(this.cropAreaX, this.cropAreaY)) {
+                console.log("br");
                 this.resizeDirection = "br";
                 this.resizeBottomRight(deltaX);
             }
             else {
+                console.log("not resizing");
+                let left = this.state.left - deltaX;
+                let top = this.state.top - deltaY;
                 this.setState({
-                    left: this.calculateCropAreaLeftEdge(deltaX, deltaY),
-                    top: this.calculateCropAreaRightEdge(deltaX, deltaY)
+                    left: this.calculateCropAreaLeftEdge(left),
+                    top: this.calculateCropAreaTopEdge(top)
                 })
             }
             this.offsetX = e.pageX;
