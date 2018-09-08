@@ -25,7 +25,6 @@ class ImageUpload extends React.Component {
     render() {
         return (
             <Form>
-                <PageHeader>(1) Select an image</PageHeader>
                 <FormGroup>
                     <FormControl
                         componentClass="input"

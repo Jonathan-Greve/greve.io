@@ -57,7 +57,6 @@ class CropImage extends Component {
     render() {
         return (
             <div >
-                <PageHeader>(4) Crop the image</PageHeader>
                 <div id="cropImageId">
                     <Image className="cropImage" src={this.props.image.src} responsive thumbnail />
                 </div>

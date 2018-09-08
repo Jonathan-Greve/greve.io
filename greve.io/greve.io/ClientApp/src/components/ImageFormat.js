@@ -66,7 +66,6 @@ class ImageFormat extends Component {
     render() {
         return (
             <Form>
-                <PageHeader>(2) Choose the image format.</PageHeader>
                 <p>Example: for US passport photos the width is 51mm and the height is 51mm. </p>
                 <FormGroup
                     controlId="imageWidthFormat"

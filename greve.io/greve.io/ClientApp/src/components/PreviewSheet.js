@@ -28,10 +28,12 @@ class PreviewSheet extends Component {
         let sheet = null;
         if (this.state.sheet) {
             console.log("Showing sheet.");
-            sheet = <Image src={this.state.sheet} responsive thumbnail />
+            sheet = <Image src={this.state.sheet} responsive thumbnail />;
         }
         return (
-            sheet
+            <div>
+                {sheet}
+            </div>
         );
     }
 }
