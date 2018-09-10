@@ -1,12 +1,10 @@
 ﻿import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
-    Col, Row, Image, Jumbotron, Form,
+    Form,
     FormGroup, FormControl, ControlLabel,
     HelpBlock, InputGroup, PageHeader,
-    Button,
 } from 'react-bootstrap';
 import { actionCreators } from '../store/ImageSheet';
 
@@ -43,18 +41,17 @@ class SheetFormat extends Component {
     }
 
     handleWidthChange(e) {
-        this.props.image.sheetWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.sheetWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value, 10) : "";
         this.props.setImage(this.props.image);
     }
 
     handleHeightChange(e) {
-        this.props.image.sheetHeight = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.sheetHeight = this.validationRegex.test(e.target.value) ? parseInt(e.target.value, 10) : "";
         this.props.setImage(this.props.image);
     }
     render() {
         return (
             <Form>
-                <PageHeader>(3) Choose the sheet format (print size).</PageHeader>
                 <p>Example: For A4 paper the width is 210mm and the height is 297mm. </p>
                 <FormGroup
                     controlId="sheetWidthFormat"
