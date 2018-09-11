@@ -1,13 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import {
-    Col, Row, Image, Jumbotron, Form,
-    FormGroup, FormControl, ControlLabel,
-    HelpBlock, InputGroup, PageHeader,
-    Button,
-} from 'react-bootstrap';
 import { actionCreators } from '../store/ImageSheet';
 
 class CropArea extends Component {
@@ -36,12 +29,13 @@ class CropArea extends Component {
         this.imageBorder = 5;
         this.resizeDirection = null;
         this.canResizeLarger = true;
+        this.blockScroll = false;
         this.state = {
             isMouseDown: false,
             left: 0,
             top: 0,
-            width: 200,
-            height: 200,
+            width: 0,
+            height: 0,
             imageWidth: 0,
             imageHeight: 0,
             cropAreaOffsetTop: 0,
@@ -69,8 +63,8 @@ class CropArea extends Component {
             this.setState({
                 width: this.state.width + deltaX * resizeSpeed,
                 height: (this.state.width + deltaX * resizeSpeed) * this.state.aspectRatio,
-                left: newLeft, 
-                top: newTop 
+                left: newLeft,
+                top: newTop
             })
         }
     }
@@ -120,27 +114,9 @@ class CropArea extends Component {
         let cropAreaStartLeft = document.getElementById("cropImageId").offsetLeft + this.imageBorder;
         let cropAreaStartTop = document.getElementById("cropImageId").offsetTop + this.imageBorder;
         let imageWidth = document.getElementById("cropImageId").offsetWidth;
+        let aspectRatio = this.props.image.imageFormatAspectRatio;
         let imageHeight = document.getElementById("cropImageId").offsetHeight;
-        this.setState({
-            imageWidth: imageWidth,
-            imageHeight: imageHeight,
-            cropAreaStartLeft: cropAreaStartLeft,
-            cropAreaStartTop: cropAreaStartTop,
-            left: cropAreaStartLeft,
-            top: cropAreaStartTop,
-            aspectRatio: this.props.aspectRatio,
-            width: imageWidth / 3,
-            height: (imageWidth / 3) * this.props.aspectRatio
-        })
-    };
-
-    componentWillReceiveProps(nextProps) {
-        let cropAreaStartLeft = document.getElementById("cropImageId").offsetLeft + this.imageBorder;
-        let cropAreaStartTop = document.getElementById("cropImageId").offsetTop + this.imageBorder;
-        let imageWidth = document.getElementById("cropImageId").offsetWidth;
-        let imageHeight = document.getElementById("cropImageId").offsetHeight;
-        let aspectRatio = !nextProps.aspectRatio ? 1.0 : nextProps.aspectRatio;
-
+        console.log("mounting crop");
 
         this.setState({
             imageWidth: imageWidth,
@@ -152,7 +128,18 @@ class CropArea extends Component {
             aspectRatio: aspectRatio,
             width: imageWidth / 3,
             height: (imageWidth / 3) * aspectRatio
-        });
+        })
+    };
+
+    componentWillReceiveProps(nextProps) {
+        console.log("receiving crop");
+        let aspectRatio = this.props.image.imageFormatAspectRatio;
+        if (nextProps)
+            this.setState({
+                aspectRatio: aspectRatio,
+                width: this.state.aspectRatio === aspectRatio ? this.state.width : this.state.imageWidth / 3,
+                height: this.state.aspectRatio === aspectRatio ? this.state.height : (this.state.imageWidth / 3) * aspectRatio
+            });
     }
 
     calculateCropAreaLeftEdge(left) {
@@ -165,7 +152,7 @@ class CropArea extends Component {
     calculateCropAreaTopEdge(top) {
         let newTop = Math.max(this.state.cropAreaStartTop, top);
         newTop = Math.min(this.state.imageHeight - this.state.height + this.state.cropAreaStartTop - this.imageBorder * 2, newTop);
-        if (newTop != top) this.canResizeLarger = false;
+        if (newTop !== top) this.canResizeLarger = false;
         else this.canResizeLarger = this.canResizeLarger && true;
         return newTop;
     }
@@ -191,26 +178,56 @@ class CropArea extends Component {
     }
 
     onMouseDown = function (e) {
-        e.preventDefault();
+        //e.preventDefault();
         this.setState({
             isMouseDown: true,
         })
 
         // Saves the current mouse position. Used for calculating how much the mouse has moved: deltaX & deltaY.
-        this.offsetX = e.pageX
-        this.offsetY = e.pageY
+        if (e.type === "touchstart") {
+            this.blockScroll = true;
+            this.offsetX = e.touches[0].pageX;
+            this.offsetY = e.touches[0].pageY;
+        }
+        else {
+            this.offsetX = e.pageX;
+            this.offsetY = e.pageY;
+        }
+        if (this.blockScroll) {
+            e.preventDefault();
+        }
 
         // rect.top is the client coordinates of the cropArea top edge. Likewise rect.left is the client coordinates of cropAreas left edge.
         var rect = e.target.getBoundingClientRect();
 
         // Calculates where inside the cropArea was clicked. Coordinates relative to cropArea (0 to cropAreas width).
-        this.cropAreaX = e.clientX - rect.left;
-        this.cropAreaY = e.clientY - rect.top;
+        if (e.type === "touchstart") {
+            this.cropAreaX = e.touches[0].clientX - rect.left;
+            this.cropAreaY = e.touches[0].clientY - rect.top;
+        }
+        else {
+            this.cropAreaX = e.clientX - rect.left;
+            this.cropAreaY = e.clientY - rect.top;
+        }
     }
     onMouseMove = function (e) {
-        e.preventDefault();
-        let deltaX = this.offsetX - e.pageX;
-        let deltaY = this.offsetY - e.pageY;
+        //e.preventDefault();
+        let deltaX;
+        let deltaY;
+        if (e.type === "touchmove") {
+            deltaX = this.offsetX - e.touches[0].pageX;
+            deltaY = this.offsetY - e.touches[0].pageY;
+            console.log("pageX: ", e.touches[0].pageX);
+            console.log("pageY: ", e.touches[0].pageY);
+        }
+        else {
+            deltaX = this.offsetX - e.pageX;
+            deltaY = this.offsetY - e.pageY;
+        }
+        console.log("EEEEEEEEEEEEEEE:", e);
+        console.log("TYYYYYPE", e.type);
+        console.log("DeltaX: ", deltaX);
+        console.log("DeltaY: ", deltaY);
 
         if (this.state.isMouseDown) {
             this.canResizeLarger = true;
@@ -245,13 +262,21 @@ class CropArea extends Component {
                     top: this.calculateCropAreaTopEdge(top)
                 })
             }
-            this.offsetX = e.pageX;
-            this.offsetY = e.pageY;
+            if (e.type === "touchmove") {
+                this.offsetX = e.touches[0].pageX;
+                this.offsetY = e.touches[0].pageY;
+            }
+            else {
+                this.offsetX = e.pageX;
+                this.offsetY = e.pageY;
+            }
         }
     }
 
     onMouseUp = function (e) {
-        e.preventDefault();
+        if (this.blockScroll) {
+            this.blockScroll = false;
+        }
         this.resizeDirection = null;
         this.setState({
             isMouseDown: false
@@ -276,8 +301,11 @@ class CropArea extends Component {
             <div
                 className="cropImageWindow" style={{ width: this.state.width, height: this.state.height, left: this.state.left, top: this.state.top }}
                 onMouseDown={this.onMouseDown}
+                onTouchStart={this.onMouseDown}
                 onMouseUp={this.onMouseUp}
-                onMouseMove={this.onMouseMove}>
+                onTouchMove={this.onMouseMove}
+                onMouseMove={this.onMouseMove}
+                onTouchEnd={this.onMouseUp}>
             </div>
         );
     }
