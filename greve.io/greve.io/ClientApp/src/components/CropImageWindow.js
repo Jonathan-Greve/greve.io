@@ -25,17 +25,6 @@ class CropImageWindow extends Component {
     }
 }
 
-class LockedCropArea extends Component {
-    render() {
-        console.log("LockedCropArea render");
-        return (
-            <div className="lockedCropArea">
-                Set image format before cropping.
-            </div>
-        );
-    }
-}
-
 class CropImage extends Component {
     render() {
         let img = null;
