@@ -30,11 +30,12 @@ namespace greve.io.Controllers
             sheet.SetSheetFormat(new CustomSheet(sheetWidth, sheetHeight));
             sheet.SetImageFormat(new CustomImageFormat(imageWidth, imageHeight));
             sheet.SetCropArea(xStart, yStart, xStart + cropWidth, yStart + cropHeight);
-            if(sheetHeight > sheetWidth)
-            {
-                sheet.SetCroppedImageRotation(270);
-                sheet.SetOutputImageRotation(90);
-            }
+            //Disabled until ImagePermutator library calculates cols and rows correctly on rotation.
+            //if(sheetHeight > sheetWidth)
+            //{
+            //    sheet.SetCroppedImageRotation(270);
+            //    sheet.SetOutputImageRotation(90);
+            //}
             sheet.Create();
 
             string outputImageString = sheet.OutputImage.ToBase64String(ImageFormats.Png); 
