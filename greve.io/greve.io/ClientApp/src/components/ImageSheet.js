@@ -1,11 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
-    Col, Row, Image, Jumbotron, Form,
-    FormGroup, FormControl, ControlLabel,
-    HelpBlock, InputGroup, PageHeader,
+    Col, Row, Jumbotron,
     Button, PanelGroup, Panel
 } from 'react-bootstrap';
 import './ImageSheet.css';
@@ -21,20 +18,24 @@ class ImageSheet extends Component {
         super(props);
         this.handleImageUpload = this.handleImageUpload.bind(this);
         this.handleCreateClick = this.handleCreateClick.bind(this);
-        this.handleSelect1 = this.handleSelect1.bind(this);
-        this.handleSelect2 = this.handleSelect2.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
+        this.toggleImage = this.toggleImage.bind(this);
+        this.togglePreview = this.togglePreview.bind(this);
 
         this.state = {
-            activeKey1: '1',
-            activeKey2: '1'
+            activeKey: '1',
         };
     }
-
-    handleSelect1(activeKey1) {
-        this.setState({ activeKey1 });
+    toggleImage(shouldShow) {
+        this.props.setShowImage(shouldShow);
     }
-    handleSelect2(activeKey2) {
-        this.setState({ activeKey2 });
+    togglePreview(shouldShow) {
+        this.props.setShowPreview(shouldShow);
+    }
+
+    handleSelect(activeKey) {
+        console.log("HandleSelect called");
+        this.setState({ activeKey });
     }
 
     componentWillMount() {
@@ -60,20 +61,56 @@ class ImageSheet extends Component {
     }
 
     render() {
+        console.log("showImage: ", this.props.showImage);
+        console.log("showPreview: ", this.props.showPreview);
+        let col2 = null;
+        if (this.props.image.src) {
+            col2 = <Col lg={6}>
+                <PanelGroup
+                    id="accordion-controlled-example2"
+                    activeKey={this.state.activeKey}
+                    onSelect={this.handleSelect}
+                >
+                    <Panel eventKey="4" expanded={this.props.showImage} onToggle={this.toggleImage}>
+                        <Panel.Heading>
+                            <Panel.Title toggle>Crop image</Panel.Title>
+                        </Panel.Heading>
+                        <Panel.Body collapsible>
+                            <CropImageWindow>
+                                <Button className="createSheetButton"
+                                    onClick={this.handleCreateClick}
+                                    bsStyle="success" bsSize="large" >
+                                    Create image sheet
+                                        </Button>
+                            </CropImageWindow>
+                        </Panel.Body>
+                    </Panel>
+                    <Panel eventKey="5" expanded={this.props.showPreview} onToggle={this.togglePreview}>
+                        <Panel.Heading>
+                            <Panel.Title toggle>Preview sheet</Panel.Title>
+                        </Panel.Heading>
+                        <Panel.Body collapsible>
+                            <PreviewSheet>
+                            </PreviewSheet>
+                        </Panel.Body>
+                    </Panel>
+                </PanelGroup>
+            </Col>;
+        }
         return (
             <div>
                 <Jumbotron>
+                    <h1>Create image sheet</h1>
                     <p>Upload an image and choose the crop area, image format, and sheet format.</p>
                 </Jumbotron>
                 <Row>
                     <Col lg={6}>
                         <PanelGroup
-                            accordion
                             id="accordion-controlled-example1"
-                            activeKey={this.state.activeKey1}
-                            onSelect={this.handleSelect1}
+                            activeKey={this.state.activeKey}
+                            onSelect={this.handleSelect}
                         >
-                            <Panel eventKey="1">
+                            <Panel eventKey="1" defaultExpanded>
                                 <Panel.Heading>
                                     <Panel.Title toggle>Image upload</Panel.Title>
                                 </Panel.Heading>
@@ -81,7 +118,7 @@ class ImageSheet extends Component {
                                     <ImageUpload onImageUpload={this.handleImageUpload} />
                                 </Panel.Body>
                             </Panel>
-                            <Panel eventKey="2">
+                            <Panel eventKey="2" defaultExpanded>
                                 <Panel.Heading>
                                     <Panel.Title toggle>Set image format</Panel.Title>
                                 </Panel.Heading>
@@ -89,7 +126,7 @@ class ImageSheet extends Component {
                                     <ImageFormat />
                                 </Panel.Body>
                             </Panel>
-                            <Panel eventKey="3">
+                            <Panel eventKey="3" defaultExpanded >
                                 <Panel.Heading>
                                     <Panel.Title toggle>Set sheet format</Panel.Title>
                                 </Panel.Heading>
@@ -99,38 +136,7 @@ class ImageSheet extends Component {
                             </Panel>
                         </PanelGroup>
                     </Col>
-                    <Col lg={6}>
-                        <PanelGroup
-                            accordion
-                            id="accordion-controlled-example2"
-                            activeKey={this.state.activeKey2}
-                            onSelect={this.handleSelect2}
-                        >
-                            <Panel eventKey="1">
-                                <Panel.Heading>
-                                    <Panel.Title toggle>Crop image</Panel.Title>
-                                </Panel.Heading>
-                                <Panel.Body collapsible>
-                                    <CropImageWindow>
-                                        <Button className="createSheetButton"
-                                            onClick={this.handleCreateClick}
-                                            bsStyle="success" bsSize="large" >
-                                            Create image sheet
-                                        </Button>
-                                    </CropImageWindow>
-                                </Panel.Body>
-                            </Panel>
-                            <Panel eventKey="2">
-                                <Panel.Heading>
-                                    <Panel.Title toggle>Preview sheet</Panel.Title>
-                                </Panel.Heading>
-                                <Panel.Body collapsible>
-                                    <PreviewSheet sheet={this.props.sheet}>
-                                    </PreviewSheet>
-                                </Panel.Body>
-                            </Panel>
-                        </PanelGroup>
-                    </Col>
+                    {col2}
                 </Row >
             </div >
         );

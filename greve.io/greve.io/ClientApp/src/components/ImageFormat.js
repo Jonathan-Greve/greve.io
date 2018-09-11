@@ -1,12 +1,10 @@
 ﻿import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
-    Col, Row, Image, Jumbotron, Form,
+    Form,
     FormGroup, FormControl, ControlLabel,
-    HelpBlock, InputGroup, PageHeader,
-    Button,
+    HelpBlock, InputGroup
 } from 'react-bootstrap';
 import { actionCreators } from '../store/ImageSheet';
 
@@ -30,7 +28,7 @@ class ImageFormat extends Component {
     }
 
     calculateAspectRatio() {
-        if (this.props.image.imageFormatHeight === 0 || this.props.image.imageFormatWidth === 0) {
+        if ((!this.props.image.imageFormatHeight > 0) || !(this.props.image.imageFormatWidth > 0)) {
             return NaN;
         }
         return this.props.image.imageFormatHeight / this.props.image.imageFormatWidth;
@@ -52,13 +50,13 @@ class ImageFormat extends Component {
         else return null;
     }
     handleWidthChange(e) {
-        this.props.image.imageFormatWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.imageFormatWidth = this.validationRegex.test(e.target.value) ? parseInt(e.target.value, 10) : "";
         this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
         this.props.setImage(this.props.image);
     }
 
     handleHeightChange(e) {
-        this.props.image.imageFormatHeight= this.validationRegex.test(e.target.value) ? parseInt(e.target.value) : "";
+        this.props.image.imageFormatHeight= this.validationRegex.test(e.target.value) ? parseInt(e.target.value, 10) : "";
         this.props.image.imageFormatAspectRatio = this.calculateAspectRatio();
         this.props.setImage(this.props.image);
     }

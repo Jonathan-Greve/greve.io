@@ -1,15 +1,9 @@
 ﻿import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
-    Col, Row, Image, Jumbotron, Form,
-    FormGroup, FormControl, ControlLabel,
-    HelpBlock, InputGroup, PageHeader,
-    Button,
+    Form, FormGroup, FormControl
 } from 'react-bootstrap'
 
-class ImageUpload extends React.Component {
+class ImageUpload extends Component {
     async _handleImageChange(e) {
         e.preventDefault();
 

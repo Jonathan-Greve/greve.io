@@ -1,7 +1,9 @@
 ﻿const requestSheet = 'REQUEST_SHEET';
 const receiveSheet = 'RECEIVE_SHEET';
 const setImage = 'SET_IMAGE';
-const initialState = { image: {}, sheet: "", canCreate: false };
+const setShowImage = "SET_SHOW_IMAGE";
+const setShowPreview= "SET_SHOW_PREVIEW";
+const initialState = { image: {}, sheet: "", canCreate: false, showImage: true, showPreview: false };
 
 
 export const actionCreators = {
@@ -47,6 +49,24 @@ export const actionCreators = {
         console.log("CAN CREATE: ", canCreate);
 
         dispatch({ type: setImage, image, canCreate });
+    },
+    setShowImage: (shouldShow = null) => async (dispatch, getState) => {
+        if (shouldShow === null) {
+            if (getState().showImage === true) {
+                shouldShow = false;
+            }
+            else shouldShow = true
+        }
+        dispatch({ type: setShowImage, shouldShow });
+    },
+    setShowPreview: (shouldShow = null) => async (dispatch, getState) => {
+        if (shouldShow === null) {
+            if (getState().showPreview === true) {
+                shouldShow = false;
+            }
+            else shouldShow = true
+        }
+        dispatch({ type: setShowPreview, shouldShow });
     }
 };
 
@@ -54,18 +74,23 @@ export const reducer = (state, action) => {
     state = state || initialState;
 
     if (action.type === requestSheet) {
+        console.log("Sheet requested");
         return {
             ...state,
-            loading: true
+            loading: true,
+            showImage: false,
+            showPreview: true
         };
     }
 
     if (action.type === receiveSheet) {
+        console.log("Sheet receivedS");
         return {
             ...state,
             sheet: action.sheet,
             loading: false,
-            canCreate: false
+            canCreate: false,
+            showImage: false,
         };
     }
     if (action.type === setImage) {
@@ -85,7 +110,22 @@ export const reducer = (state, action) => {
                 cropHeight: action.image.cropHeight,
                 imageFormatAspectRatio: action.image.imageFormatAspectRatio
             },
-            canCreate: action.canCreate
+            canCreate: action.canCreate,
+            showImage: true,
+        };
+    }
+    
+    if (action.type === setShowImage) {
+        return {
+            ...state,
+            showImage: action.shouldShow
+        };
+    }
+
+    if (action.type === setShowPreview) {
+        return {
+            ...state,
+            showPreview: action.shouldShow
         };
     }
 
